@@ -8,9 +8,9 @@ workflows:
       groups:
         - keystore_credentials
     scripts:
-      - name: Build Android Release APK / Bundle
+      - name: Build Android Release APK
         script: |
           # Compilar el proyecto en modo release
           ./gradlew assembleRelease
     artifacts:
-      - android/app/build/outputs/apk/release/*.apk
+      - '**/build/outputs/apk/release/*.apk'
