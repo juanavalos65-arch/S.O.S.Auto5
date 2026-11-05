@@ -1,1 +1,16 @@
-
+workflows:
+  sos-auto-android-workflow:
+    name: S.O.S. Auto Android Workflow
+    max_build_duration: 60
+    environment:
+      android_signing:
+        - keystore_reference
+      groups:
+        - keystore_credentials
+    scripts:
+      - name: Build Android Release APK / Bundle
+        script: |
+          # Compilar el proyecto en modo release
+          ./gradlew assembleRelease
+    artifacts:
+      - android/app/build/outputs/apk/release/*.apk
