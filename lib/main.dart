@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'screens/register_vehicle_screen.dart';
+import 'screens/report_incident_screen.dart';
+import 'screens/emergency_sos_screen.dart';
 
 void main() {
   runApp(const SosAutoApp());
@@ -27,7 +30,6 @@ class SosAutoApp extends StatelessWidget {
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // Enlace oficial de Wompi para pauta y aliados
   Future<void> _launchWompi() async {
     final Uri url = Uri.parse('https://checkout.wompi.co/l/VPOS_3Odu3K');
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
@@ -45,7 +47,6 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cabecera Corporativa
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -57,7 +58,7 @@ class HomeScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
                             Text(
-                              'S.O.S.Auto',
+                              'S.O.S. Auto',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -75,8 +76,6 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 15),
-
-                // Sección Publicidad / Aliados
                 const Text(
                   'Publicidad',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
@@ -96,8 +95,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // Mapa Interactivo Central (Simulado con GoogleMap)
                 Container(
                   height: 210,
                   width: double.infinity,
@@ -111,7 +108,7 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         const GoogleMap(
                           initialCameraPosition: CameraPosition(
-                            target: LatLng(9.3047, -75.3978), // Sincelejo, Sucre
+                            target: LatLng(9.3047, -75.3978),
                             zoom: 14,
                           ),
                           myLocationEnabled: true,
@@ -137,60 +134,93 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Botonera Principal (Grid 4x2)
                 GridView.count(
                   crossAxisCount: 2,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics,
+                  physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.3,
                   children: [
                     _ActionCard(
                       title: 'Me varé',
                       color: const Color(0xFFD6E4FC),
                       textColor: const Color(0xFF0A2540),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EmergencySosScreen(emergencyType: 'Me varé')),
+                        );
+                      },
                     ),
                     _ActionCard(
                       title: 'Me accidenté',
                       color: const Color(0xFFD6E4FC),
                       textColor: const Color(0xFF0A2540),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EmergencySosScreen(emergencyType: 'Me accidenté')),
+                        );
+                      },
                     ),
                     _ActionCard(
                       title: 'Estoy en peligro',
                       color: const Color(0xFFD6E4FC),
                       textColor: const Color(0xFF0A2540),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EmergencySosScreen(emergencyType: 'Estoy en peligro')),
+                        );
+                      },
                     ),
                     _ActionCard(
                       title: 'Robo de auto',
                       color: const Color(0xFFD6E4FC),
                       textColor: const Color(0xFF0A2540),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EmergencySosScreen(emergencyType: 'Robo de auto')),
+                        );
+                      },
                     ),
                     _ActionCard(
                       title: 'Me detuvo\nun agente de tránsito',
                       color: const Color(0xFFD6E4FC),
                       textColor: const Color(0xFF0A2540),
                       fontSize: 11,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EmergencySosScreen(emergencyType: 'Agente de tránsito')),
+                        );
+                      },
                     ),
                     _ActionCard(
                       title: 'Novedades\nen la vía',
                       color: const Color(0xFFD6E4FC),
                       textColor: const Color(0xFF0A2540),
                       fontSize: 12,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ReportIncidentScreen()),
+                        );
+                      },
                     ),
                     _ActionCard(
                       title: 'Registre\nsu vehículo',
                       color: Colors.red,
                       textColor: Colors.white,
                       fontSize: 12,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RegisterVehicleScreen()),
+                        );
+                      },
                     ),
                     _ActionCard(
                       title: 'PAUTE\nAQUÍ',
