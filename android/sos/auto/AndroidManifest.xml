@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="sos.auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:label="S.O.S. Auto"
