@@ -1,4 +1,4 @@
-package com.example.sos_auto;
+package sos.auto;
 
 import io.flutter.embedding.android.FlutterActivity;
 
