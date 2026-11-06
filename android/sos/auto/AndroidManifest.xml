@@ -1,12 +1,10 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.sos_auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:label="S.O.S. Auto"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         
-        <!-- Agrega o verifica esta línea -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
@@ -28,9 +26,5 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
     </application>
 </manifest>
