@@ -1,13 +1,4 @@
-name: sos_auto
-description: "S.O.S. Auto application"
-publish_to: "none"
-version: 1.0.0+1
-
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-
 dependencies:
   flutter:
     sdk: flutter
-  geolocator: ^13.0.2
-  # Mantén aquí el resto de tus dependencias actuales
+  geolocator: ^12.0.0
