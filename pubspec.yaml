@@ -1,5 +1,4 @@
 dependencies:
   flutter:
-  
-environment:
+  environment:
   sdk: '^3.3.0'
