@@ -1,4 +1,4 @@
-name: Build Android App
+name: Build APK, AAB and Web
 
 on:
   push:
@@ -38,8 +38,8 @@ jobs:
           # 2. Asegurar nombre de paquete válido
           sed -i 's/^name:.*/name: sos_auto/' pubspec.yaml
 
-          # 3. Regenerar estructura limpia de Flutter
-          flutter create . --org ge.sosauto --project-name sos_auto --platforms=android
+          # 3. Regenerar estructura limpia de Flutter con soporte web y android
+          flutter create . --org ge.sosauto --project-name sos_auto --platforms=android,web
 
           # 4. Restaurar código y dependencias
           rm -rf lib
@@ -51,12 +51,23 @@ jobs:
           if grep -q "org.jetbrains.kotlin.android" android/settings.gradle; then
             sed -i 's/id "org.jetbrains.kotlin.android" version ".*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' android/settings.gradle
           else
-            # Si usa comillas simples o formato alternativo
             sed -i "s/id 'org.jetbrains.kotlin.android' version '.*'/id 'org.jetbrains.kotlin.android' version '1.9.22'/" android/settings.gradle
           fi
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK Release
-        run: flutter build apk --release
+      - name: Build APK, App Bundle and Web
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+          flutter build web --release
+
+      - name: Upload Artifacts (APK, AAB & Web)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sos-auto-release-bundle
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+            build/web/
