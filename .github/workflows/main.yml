@@ -29,7 +29,7 @@ jobs:
 
       - name: Generate clean project structure and update Kotlin
         run: |
-          # 1. Respaldar código y configuración de la app S.O.S. Auto
+          # 1. Respaldar código y configuración de S.O.S. Auto
           mkdir -p backup_files
           cp -r lib backup_files/
           cp pubspec.yaml backup_files/
@@ -44,24 +44,15 @@ jobs:
           # 4. Restaurar código y dependencias
           rm -rf lib
           cp -r backup_files/lib .
-          cp -r backup_files/pubspec.yaml .
+          cp backup_files/pubspec.yaml .
           if [ -d "backup_files/assets" ]; then cp -r backup_files/assets .; fi
 
-          # 5. Actualizar de forma segura la versión de Kotlin en el build.gradle generado por Flutter
-          python3 -c "
-          import re
-          path = 'android/build.gradle'
-          with open(path, 'r') as f:
-              content = f.read()
-
-          if 'ext.kotlin_version' in content:
-              content = re.sub(r\"ext\.kotlin_version\s*=\s*['\"].*?['\"]\", \"ext.kotlin_version = '1.9.22'\", content)
-          else:
-              content = content.replace('buildscript {', \"buildscript {\n    ext.kotlin_version = '1.9.22'\")
-
-          with open(path, 'w') as f:
-              f.write(content)
-          "
+          # 5. Inyectar o actualizar la versión de Kotlin a 1.9.22 en android/build.gradle usando sed
+          if grep -q "ext.kotlin_version" android/build.gradle; then
+            sed -i "s/ext.kotlin_version = .*/ext.kotlin_version = '1.9.22'/" android/build.gradle
+          else
+            sed -i "/buildscript {/a \    ext.kotlin_version = '1.9.22'" android/build.gradle
+          fi
 
       - name: Install dependencies
         run: flutter pub get
