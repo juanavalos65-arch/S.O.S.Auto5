@@ -30,8 +30,5 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Regenerate Android platform files
-        run: flutter create . --platforms=android --org ge.sosauto
-
       - name: Build APK Release
         run: flutter build apk --release
