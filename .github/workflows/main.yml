@@ -27,7 +27,7 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Generate clean project structure and apply fixed Gradle
+      - name: Generate clean project structure and configure Kotlin in settings.gradle
         run: |
           # 1. Respaldar código y configuración de S.O.S. Auto
           mkdir -p backup_files
@@ -47,39 +47,13 @@ jobs:
           cp backup_files/pubspec.yaml .
           if [ -d "backup_files/assets" ]; then cp -r backup_files/assets .; fi
 
-          # 5. Sobrescribir android/build.gradle con la versión fija 1.9.22 sin variables
-          cat << 'EOF' > android/build.gradle
-          buildscript {
-              ext.kotlin_version = '1.9.22'
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-              dependencies {
-                  classpath 'com.android.tools.build:gradle:7.4.2'
-                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
-              }
-          }
-
-          allprojects {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-
-          rootProject.buildDir = '../build'
-          subprojects {
-              project.buildDir = "${rootProject.buildDir}/${project.name}"
-          }
-          subprojects {
-              project.evaluationDependsOn(':app')
-          }
-
-          tasks.register("clean", Delete) {
-              delete rootProject.buildDir
-          }
-          EOF
+          # 5. Actualizar la versión del plugin de Kotlin a 1.9.22 en android/settings.gradle
+          if grep -q "org.jetbrains.kotlin.android" android/settings.gradle; then
+            sed -i 's/id "org.jetbrains.kotlin.android" version ".*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' android/settings.gradle
+          else
+            # Si usa comillas simples o formato alternativo
+            sed -i "s/id 'org.jetbrains.kotlin.android' version '.*'/id 'org.jetbrains.kotlin.android' version '1.9.22'/" android/settings.gradle
+          fi
 
       - name: Install dependencies
         run: flutter pub get
