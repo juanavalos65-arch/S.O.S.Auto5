@@ -29,8 +29,6 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: S.O.S.Auto5
 
       - name: Build APK Release
         run: flutter build apk --release
-        working-directory: S.O.S.Auto5
