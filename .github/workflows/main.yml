@@ -27,13 +27,14 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Generate clean project structure and update Kotlin
+      - name: Generate clean project structure and apply fixed Gradle
         run: |
           # 1. Respaldar código y configuración de S.O.S. Auto
           mkdir -p backup_files
           cp -r lib backup_files/
           cp pubspec.yaml backup_files/
           if [ -d "assets" ]; then cp -r assets backup_files/; fi
+          if [ -f "android/build.gradle" ]; then cp android/build.gradle backup_files/build.gradle.custom; fi
 
           # 2. Asegurar nombre de paquete válido
           sed -i 's/^name:.*/name: sos_auto/' pubspec.yaml
@@ -47,12 +48,39 @@ jobs:
           cp backup_files/pubspec.yaml .
           if [ -d "backup_files/assets" ]; then cp -r backup_files/assets .; fi
 
-          # 5. Inyectar o actualizar la versión de Kotlin a 1.9.22 en android/build.gradle usando sed
-          if grep -q "ext.kotlin_version" android/build.gradle; then
-            sed -i "s/ext.kotlin_version = .*/ext.kotlin_version = '1.9.22'/" android/build.gradle
-          else
-            sed -i "/buildscript {/a \    ext.kotlin_version = '1.9.22'" android/build.gradle
-          fi
+          # 5. Sobrescribir directamente el build.gradle con nuestra versión garantizada de Kotlin 1.9.22
+          cat << 'EOF' > android/build.gradle
+          buildscript {
+              ext.kotlin_version = '1.9.22'
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath 'com.android.tools.build:gradle:7.4.2'
+                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+              }
+          }
+
+          allprojects {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+
+          rootProject.buildDir = '../build'
+          subprojects {
+              project.buildDir = "${rootProject.buildDir}/${project.name}"
+          }
+          subprojects {
+              project.evaluationDependsOn(':app')
+          }
+
+          tasks.register("clean", Delete) {
+              delete rootProject.buildDir
+          }
+          EOF
 
       - name: Install dependencies
         run: flutter pub get
