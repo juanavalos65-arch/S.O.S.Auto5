@@ -27,6 +27,26 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Generate clean project structure
+        run: |
+          # Respaldamos tu código fuente y dependencias
+          mkdir -p backup_files
+          cp -r lib backup_files/
+          cp pubspec.yaml backup_files/
+          if [ -d "assets" ]; then cp -r assets backup_files/; fi
+
+          # Forzamos un nombre de paquete válido en minúsculas para el generador
+          sed -i 's/^name:.*/name: sos_auto/' pubspec.yaml
+
+          # Creamos un proyecto nuevo y limpio con la estructura nativa actualizada
+          flutter create . --org ge.sosauto --project-name sos_auto --platforms=android
+
+          # Restauramos tu código y recursos sobre la estructura limpia
+          rm -rf lib
+          cp -r backup_files/lib .
+          cp backup_files/pubspec.yaml .
+          if [ -d "backup_files/assets" ]; then cp -r backup_files/assets .; fi
+
       - name: Install dependencies
         run: flutter pub get
 
