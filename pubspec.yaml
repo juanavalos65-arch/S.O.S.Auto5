@@ -1,50 +1,20 @@
-name: Build Android App
+name: sos_auto
+description: "Seguridad vehicular, ayuda en caso de imprevistos"
+publish_to: 'none'
+version: 1.0.0+1
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+environment:
+  sdk: '>=3.0.0 <4.0.0'
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+dependencies:
+  flutter:
+    sdk: flutter
+  location: ^5.0.3
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
 
-      - name: Set up Java JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.6'
-          channel: 'stable'
-          cache: true
-
-      - name: Generate clean project structure
-        run: |
-          mkdir -p backup_files
-          cp -r lib backup_files/
-          cp pubspec.yaml backup_files/
-          if [ -d "assets" ]; then cp -r assets backup_files/; fi
-
-          sed -i 's/^name:.*/name: sos_auto/' pubspec.yaml
-
-          flutter create . --org ge.sosauto --project-name sos_auto --platforms=android
-
-          rm -rf lib
-          cp -r backup_files/lib .
-          cp backup_files/pubspec.yaml .
-          if [ -d "backup_files/assets" ]; then cp -r backup_files/assets .; fi
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build APK Release
-        run: flutter build apk --release
+flutter:
+  uses-material-design: true
