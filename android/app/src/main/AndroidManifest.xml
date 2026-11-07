@@ -1,22 +1,29 @@
-android {
-    namespace "sos.auto"
-    compileSdkVersion flutter.compileSdkVersion
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ge.sosauto.app">
 
-    // Agrega este bloque sourceSets para que Gradle lea desde android/sos/auto/
-    sourceSets {
-        main {
-            manifest.srcFile '../../sos/auto/AndroidManifest.xml'
-            java.srcDirs = ['../../sos/auto']
-            res.srcDirs = ['../../sos/auto']
-        }
-    }
-
-    defaultConfig {
-        applicationId "sos.auto"
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-    }
-    // ... resto de tu configuración
-}
+    <application
+        android:label="S.O.S. Auto"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <meta-data
+            android:name="flutterEmbedding"
+            android:enabled="true"
+        />
+    </application>
+</manifest>
