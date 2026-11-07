@@ -34,7 +34,6 @@ jobs:
           cp -r lib backup_files/
           cp pubspec.yaml backup_files/
           if [ -d "assets" ]; then cp -r assets backup_files/; fi
-          if [ -f "android/build.gradle" ]; then cp android/build.gradle backup_files/build.gradle.custom; fi
 
           # 2. Asegurar nombre de paquete válido
           sed -i 's/^name:.*/name: sos_auto/' pubspec.yaml
@@ -48,7 +47,7 @@ jobs:
           cp backup_files/pubspec.yaml .
           if [ -d "backup_files/assets" ]; then cp -r backup_files/assets .; fi
 
-          # 5. Sobrescribir directamente el build.gradle con nuestra versión garantizada de Kotlin 1.9.22
+          # 5. Sobrescribir android/build.gradle con la versión fija 1.9.22 sin variables
           cat << 'EOF' > android/build.gradle
           buildscript {
               ext.kotlin_version = '1.9.22'
@@ -58,7 +57,7 @@ jobs:
               }
               dependencies {
                   classpath 'com.android.tools.build:gradle:7.4.2'
-                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
               }
           }
 
