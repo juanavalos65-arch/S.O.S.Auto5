@@ -39,30 +39,30 @@ class _MainMapScreenState extends State<MainMapScreen> {
   final MapController _mapController = MapController();
   final LocalAuthentication _auth = LocalAuthentication();
   
-  LatLng _currentPosition = const LatLng(9.3047, -75.3978); // Default
+  LatLng _currentPosition = const LatLng(9.3047, -75.3978);
   double _currentSpeedKmH = 0.0;
   StreamSubscription<Position>? _positionStream;
 
-  // Banner dynamic rotation
   int _bannerIndex = 0;
   late Timer _bannerTimer;
+  
   final List> _bannerItems = [
     {
       "tag": "🏢 PAUTA ALIADO",
       "title": "Taller Electromecánico El Pibe",
-      "desc": "Grúas 24/7 y diagnóstico escáner - 15% desc. usuarios S.O.S. Auto",
+      "desc": "Grúas 24/7 y diagnóstico escáner - 15% desc.",
       "color": "0xFF3B82F6"
     },
     {
       "tag": "🚨 AUTO ROBADO",
       "title": "Toyota Hilux Blanco 2023 - Placa HXU874",
-      "desc": "Hurtado en Troncal del Caribe. Contacto directo en la app.",
+      "desc": "Hurtado en Troncal. Alerte a la comunidad.",
       "color": "0xFFEF4444"
     },
     {
       "tag": "⚠️ NOVEDAD EN LA VÍA",
       "title": "Derrumbe Parcial - Vía a la Costa",
-      "desc": "Paso restringido a un solo carril. Reduzca la velocidad.",
+      "desc": "Paso restringido a un carril. Precaución.",
       "color": "0xFFF59E0B"
     }
   ];
@@ -72,9 +72,11 @@ class _MainMapScreenState extends State<MainMapScreen> {
     super.initState();
     _initGeolocation();
     _bannerTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      setState(() {
-        _bannerIndex = (_bannerIndex + 1) % _bannerItems.length;
-      });
+      if (mounted) {
+        setState(() {
+          _bannerIndex = (_bannerIndex + 1) % _bannerItems.length;
+        });
+      }
     });
   }
 
@@ -101,15 +103,16 @@ class _MainMapScreenState extends State<MainMapScreen> {
         distanceFilter: 5,
       ),
     ).listen((Position position) {
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-        _currentSpeedKmH = (position.speed * 3.6).clamp(0, 220);
-      });
-      _mapController.move(_currentPosition, 16.0);
+      if (mounted) {
+        setState(() {
+          _currentPosition = LatLng(position.latitude, position.longitude);
+          _currentSpeedKmH = (position.speed * 3.6).clamp(0, 220);
+        });
+        _mapController.move(_currentPosition, 16.0);
+      }
     });
   }
 
-  // Protocolo de Cancelación de Emergencia (5s)
   void _triggerEmergencyProtocol(String title, String alertType) {
     int secondsLeft = 5;
     Timer? countdownTimer;
@@ -160,7 +163,7 @@ class _MainMapScreenState extends State<MainMapScreen> {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  const Text('Ingrese su PIN o Biometría para ANULAR el envío', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  const Text('Ingrese PIN o Biometría para anular', style: TextStyle(fontSize: 12, color: Colors.grey)),
                   const SizedBox(height: 10),
                   TextField(
                     controller: pinController,
@@ -168,7 +171,7 @@ class _MainMapScreenState extends State<MainMapScreen> {
                     obscureText: true,
                     maxLength: 4,
                     decoration: const InputDecoration(
-                      hintText: "PIN (ej. 1234)",
+                      hintText: "PIN (1234)",
                       filled: true,
                       fillColor: Color(0xFF0F172A),
                       border: OutlineInputBorder(),
@@ -178,18 +181,18 @@ class _MainMapScreenState extends State<MainMapScreen> {
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF38BDF8)),
                     onPressed: () async {
                       bool authenticated = await _auth.authenticate(
-                        localizedReason: 'Confirme para anular la alerta por error',
+                        localizedReason: 'Confirme para anular la alerta',
                       );
                       if (authenticated) {
                         countdownTimer?.cancel();
                         Navigator.of(dialogContext).pop();
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Alerta ANULADA correctamente con biometría.')),
+                          const SnackBar(content: Text('Alerta ANULADA con biometría.')),
                         );
                       }
                     },
                     icon: const Icon(Icons.fingerprint, color: Colors.black),
-                    label: const Text('Anular con Biometría', style: TextStyle(color: Colors.black)),
+                    label: const Text('Biometría', style: TextStyle(color: Colors.black)),
                   )
                 ],
               ),
@@ -208,7 +211,7 @@ class _MainMapScreenState extends State<MainMapScreen> {
                       );
                     }
                   },
-                  child: const Text('Confirmar PIN y Anular', style: TextStyle(color: Colors.redAccent)),
+                  child: const Text('Confirmar PIN', style: TextStyle(color: Colors.redAccent)),
                 )
               ],
             );
@@ -222,12 +225,11 @@ class _MainMapScreenState extends State<MainMapScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Colors.red,
-        content: Text('🚨 TRANSMITIENDO ALERTA: $alertType. Coordenadas enviadas.'),
+        content: Text('🚨 TRANSMITIENDO: $alertType. GPS enviado.'),
       ),
     );
   }
 
-  // Módulo Paute Aquí (Wompi)
   void _showPauteAquiModal() {
     String selectedPlan = "1 Mes";
     double basePrice = 50000;
@@ -251,7 +253,7 @@ class _MainMapScreenState extends State<MainMapScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('📢 Paute Aquí - Banner S.O.S. Auto', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFFD700))),
+                  const Text('📢 Paute Aquí - S.O.S. Auto', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFFD700))),
                   const SizedBox(height: 10),
                   DropdownButton<String>(
                     value: selectedPlan,
@@ -278,7 +280,7 @@ class _MainMapScreenState extends State<MainMapScreen> {
                     child: Column(
                       children: [
                         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text("Valor Base:"), Text("\$${basePrice.toStringAsFixed(0)} COP")]),
-                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text("Impuesto (IVA 19%):"), Text("\$${taxValue.toStringAsFixed(0)} COP")]),
+                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text("IVA (19%):"), Text("\$${taxValue.toStringAsFixed(0)} COP")]),
                         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text("Comisión Wompi:"), Text("\$${wompiFee.toStringAsFixed(0)} COP")]),
                         const Divider(),
                         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text("TOTAL:", style: TextStyle(fontWeight: FontWeight.bold)), Text("\$${total.toStringAsFixed(0)} COP", style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF22C55E)))]),
@@ -306,7 +308,6 @@ class _MainMapScreenState extends State<MainMapScreen> {
     );
   }
 
-  // Módulo de Registro
   void _showRegistroModal() {
     final TextEditingController placaCtrl = TextEditingController();
     bool addExtraDriver = false;
@@ -328,21 +329,21 @@ class _MainMapScreenState extends State<MainMapScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('📝 Registro Vehicular S.O.S. Auto', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFFD700))),
+                  const Text('📝 Registro Vehicular', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFFFD700))),
                   const SizedBox(height: 10),
                   TextField(
                     controller: placaCtrl,
-                    decoration: const InputDecoration(labelText: 'Placa del Vehículo (Obligatorio)', border: OutlineInputBorder()),
+                    decoration: const InputDecoration(labelText: 'Placa del Vehículo (Ej: HXU874)', border: OutlineInputBorder()),
                   ),
                   const SizedBox(height: 10),
                   CheckboxListTile(
-                    title: const Text('¿Desea registrar otro conductor (ej. familiar) para esta misma placa?'),
+                    title: const Text('¿Registrar otro conductor para esta placa?'),
                     value: addExtraDriver,
                     onChanged: (val) => setModalState(() => addExtraDriver = val!),
                   ),
                   if (addExtraDriver)
                     const TextField(
-                      decoration: InputDecoration(labelText: 'Nombre y Cédula del Conductor Adicional', border: OutlineInputBorder()),
+                      decoration: InputDecoration(labelText: 'Nombre y Cédula Conductor Adicional', border: OutlineInputBorder()),
                     ),
                   const SizedBox(height: 15),
                   SizedBox(
@@ -352,7 +353,7 @@ class _MainMapScreenState extends State<MainMapScreen> {
                       onPressed: () {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Vehículo con placa ${placaCtrl.text} registrado con éxito (E2EE).')),
+                          SnackBar(content: Text('Placa ${placaCtrl.text} guardada con cifrado E2EE.')),
                         );
                       },
                       child: const Text('Guardar Registro', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
@@ -374,12 +375,11 @@ class _MainMapScreenState extends State<MainMapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // MAPA INTERACTIVO REAL
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              center: _currentPosition,
-              zoom: 16.0,
+              initialCenter: _currentPosition,
+              initialZoom: 16.0,
             ),
             children: [
               TileLayer(
@@ -392,21 +392,18 @@ class _MainMapScreenState extends State<MainMapScreen> {
                     point: _currentPosition,
                     width: 50,
                     height: 50,
-                    builder: (ctx) => const Icon(Icons.navigation, color: Color(0xFF38BDF8), size: 40),
+                    child: const Icon(Icons.navigation, color: Color(0xFF38BDF8), size: 40),
                   ),
                 ],
               ),
             ],
           ),
-
-          // CABECERA OFICIAL & BANNER DINÁMICO
           Positioned(
             top: 40,
             left: 10,
             right: 10,
             child: Column(
               children: [
-                // Header Fijo
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                   decoration: BoxDecoration(
@@ -433,8 +430,6 @@ class _MainMapScreenState extends State<MainMapScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-
-                // Banner Intercalado (5s)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(10),
@@ -454,8 +449,6 @@ class _MainMapScreenState extends State<MainMapScreen> {
               ],
             ),
           ),
-
-          // BARRA INFERIOR DE 8 BOTONES PRINCIPALES
           Positioned(
             bottom: 15,
             left: 10,
@@ -478,7 +471,7 @@ class _MainMapScreenState extends State<MainMapScreen> {
                     _buildActionButton('🔴 Estoy en Peligro', Colors.purple, () => _triggerEmergencyProtocol('Peligro Personal', 'PELIGRO')),
                     _buildActionButton('👮 Agente Tránsito', Colors.cyan, () => _triggerEmergencyProtocol('Detención Tránsito', 'TRANSITO')),
                     _buildActionButton('🟠 Robo de Auto', Colors.orange, () => _triggerEmergencyProtocol('Robo de Vehículo', 'ROBO')),
-                    _buildActionButton('⚠️ Novedad Vía', Colors.teal, () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reporte de Novedad Vial transmitido')))),
+                    _buildActionButton('⚠️ Novedad Vía', Colors.teal, () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reporte de Novedad Vía transmitido')))),
                   ],
                 ),
               ),
