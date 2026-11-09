@@ -1,12 +1,37 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
 android {
-    // Asegúrate de que compileSdk esté en 34 o el número correspondiente a tu entorno
+    namespace "com.example.sosauto"
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.tu_paquete.sos_auto" // Aquí va el nombre de tu paquete
-        minSdkVersion 21                       // Versión mínima que soportará tu app
-        targetSdkVersion 34                    // ESTO SOLUCIONA EL BLOQUEO
+        applicationId "com.example.sosauto"
+        minSdk 21
+        targetSdk 34
         versionCode 1
         versionName "1.0"
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source '../..'
 }
