@@ -1,1 +1,12 @@
-build
+android {
+    // Asegúrate de que compileSdk esté en 34 o el número correspondiente a tu entorno
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.tu_paquete.sos_auto" // Aquí va el nombre de tu paquete
+        minSdkVersion 21                       // Versión mínima que soportará tu app
+        targetSdkVersion 34                    // ESTO SOLUCIONA EL BLOQUEO
+        versionCode 1
+        versionName "1.0"
+    }
+}
