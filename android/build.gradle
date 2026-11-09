@@ -1,31 +1,22 @@
-buildscript {
-    ext.kotlin_version = '1.9.22'
-    repositories {
-        google()
-        mavenCentral()
+android {
+    namespace "com.sosauto.app"
+    compileSdkVersion 34
+
+    defaultConfig {
+        applicationId "com.sosauto.app"
+        minSdkVersion 23 // Garantiza compatibilidad desde Android 6.0 en adelante
+        targetSdkVersion 34 // Resuelve el aviso de versión anterior de Android
+        versionCode 2
+        versionName "1.0.1"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.buildDir = '../build'
-subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(':app')
-}
-
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
 }
