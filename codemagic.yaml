@@ -10,7 +10,7 @@ workflows:
     scripts:
       - name: Build Android Release APK
         script: |
-          # Compilar el proyecto en modo release
-          ./gradlew assembleRelease
+          # Limpiar dependencias y compilar el proyecto en modo release apuntando a la carpeta android
+          cd android && ./gradlew assembleRelease
     artifacts:
-      - '**/build/outputs/apk/release/*.apk'
+      - 'android/app/build/outputs/apk/release/*.apk'
