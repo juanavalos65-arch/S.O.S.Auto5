@@ -1,3 +1,4 @@
+
 name: Build S.O.S. Auto APK
 
 on:
@@ -23,17 +24,20 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.x' # O la versión estable que estés utilizando
+          flutter-version: '3.19.6'
           channel: 'stable'
           cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Generate Android Gradle Wrapper & Support Files
+      - name: Setup Gradle Wrapper Properties
         run: |
-          cd android
-          gradle wrapper --gradle-version 7.5
+          mkdir -p android/gradle/wrapper
+          echo "distributionBase=GRADLE_USER_HOME" > android/gradle/wrapper/gradle-wrapper.properties
+          echo "distributionPath=wrapper/dists" >> android/gradle/wrapper/gradle-wrapper.properties
+          echo "distributionUrl=https\://services.gradle.org/gradle-7.5-bin.zip" >> android/gradle/wrapper/gradle-wrapper.properties
+          echo "systemProp.http.keepAlive=false" >> android/gradle/wrapper/gradle-wrapper.properties
 
       - name: Build APK, App Bundle and Web
         run: flutter build apk --release
