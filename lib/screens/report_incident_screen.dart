@@ -1,28 +1,14 @@
 import 'package:flutter/material.dart';
 
-class ReportIncidentScreen extends StatefulWidget {
-  const ReportIncidentScreen({super.key});
-
-  @override
-  State<ReportIncidentScreen> createState() => _ReportIncidentScreenState();
-}
-
-class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
-  String _selectedIncident = 'Cierre Vial';
-  final List<String> _incidentTypes = [
-    'Cierre Vial',
-    'Derrumbe / Deslizamiento',
-    'Vehículo Robado',
-    'Clima Adverso / Vía Mojada',
-    'Retención / Tránsito'
-  ];
+class TrafficStopScreen extends StatelessWidget {
+  const TrafficStopScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reportar Novedad o Robo'),
-        backgroundColor: Colors.green,
+        title: const Text('Me Detuvo un Agente de Tránsito'),
+        backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -30,58 +16,35 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Icon(Icons.warning_amber_rounded, size: 64, color: Colors.green),
+            const Icon(Icons.local_police, size: 64, color: Colors.teal),
             const SizedBox(height: 16),
             const Text(
-              'Selecciona el tipo de novedad',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'Control y Registro de Procedimiento',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20),
-            DropdownButtonFormField<String>(
-              value: _selectedIncident,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                filled: true,
-                fillColor: Colors.grey[100],
-              ),
-              items: _incidentTypes.map((String type) {
-                return DropdownMenuItem<String>(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedIncident = newValue!;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: 'Descripción detallada de la vía o evento',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              ),
+            const SizedBox(height: 10),
+            const Text(
+              'Activa el registro del procedimiento y mantén la seguridad respaldada por la red.',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+              textAlign: TextAlign.center,
             ),
             const Spacer(),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: Colors.teal,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Reporte de "$_selectedIncident" enviado a la red.')),
+                  const SnackBar(content: Text('Grabación y registro de retención iniciados.')),
                 );
-                Navigator.pop(context);
               },
-              icon: const Icon(Icons.send),
-              label: const Text('Enviar Alerta a la Comunidad', style: TextStyle(fontSize: 16)),
+              icon: const Icon(Icons.fiber_manual_record, color: Colors.redAccent),
+              label: const Text('Iniciar Registro / Audio', style: TextStyle(fontSize: 16)),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
           ],
         ),
       ),
