@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -13,35 +12,7 @@ class _MapScreenState extends State<MapScreen> {
   Offset _offset = Offset.zero;
   Offset _previousOffset = Offset.zero;
   double _previousScale = 1.0;
-  String _preferredMap = 'Google Maps';
-
-  // Función directa para abrir el mapa seleccionado
-  Future<void> _launchMapApp(String mapType) async {
-    setState(() {
-      _preferredMap = mapType;
-    });
-
-    const double lat = 6.2442;
-    const double lng = -75.5812;
-
-    final String urlString = mapType == 'Waze'
-        ? 'https://waze.com/ul?ll=$lat,$lng&navigate=yes'
-        : 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
-
-    final Uri uri = Uri.parse(urlString);
-
-    try {
-      // Lanzamiento directo optimizado para Android
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      debugPrint('Error al abrir el mapa: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo iniciar $mapType. Verifique que esté instalado.')),
-        );
-      }
-    }
-  }
+  String _mapEngine = 'Google Maps (Interno)'; // Motor activo dentro de la app
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +30,7 @@ class _MapScreenState extends State<MapScreen> {
         },
         child: Stack(
           children: [
+            // Contenedor principal del mapa integrado en la app con grilla y simulación de ruta
             Positioned.fill(
               child: Transform(
                 transform: Matrix4.identity()
@@ -73,20 +45,28 @@ class _MapScreenState extends State<MapScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.navigation, size: 48, color: Colors.blueAccent),
-                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              shape: BoxShape.circle,
+                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8)],
+                            ),
+                            child: const Icon(Icons.navigation, size: 50, color: Colors.blueAccent),
+                          ),
+                          const SizedBox(height: 12),
                           const Text(
-                            'S.O.S. Auto - Navegación Activa',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
+                            'S.O.S. Auto - Vista de Mapa Integrada',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'App seleccionada: $_preferredMap',
+                            'Renderizando con: $_mapEngine',
                             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.blueGrey),
                           ),
                           const SizedBox(height: 2),
                           const Text(
-                            'Desliza para mover / Pellizca para zoom',
+                            'Desliza para mover / Pellizca para zoom en pantalla',
                             style: TextStyle(fontSize: 10, color: Colors.grey),
                           ),
                         ],
@@ -97,7 +77,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             
-            // Selector flotante de mapa
+            // Selector flotante para cambiar entre estilos de mapa interno
             Positioned(
               top: 75,
               left: 16,
@@ -109,26 +89,31 @@ class _MapScreenState extends State<MapScreen> {
                   boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                 ),
                 child: DropdownButton<String>(
-                  value: _preferredMap,
+                  value: _mapEngine,
                   underline: const SizedBox(),
-                  icon: const Icon(Icons.map, size: 18, color: Colors.blueAccent),
+                  icon: const Icon(Icons.layers, size: 18, color: Colors.blueAccent),
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                  items: ['Google Maps', 'Waze'].map((String map) {
+                  items: ['Google Maps (Interno)', 'Waze (Interno)'].map((String engine) {
                     return DropdownMenuItem<String>(
-                      value: map,
-                      child: Text('Abrir en: $map'),
+                      value: engine,
+                      child: Text('Vista: $engine'),
                     );
                   }).toList(),
-                  onChanged: (String? newMap) {
-                    if (newMap != null) {
-                      _launchMapApp(newMap);
+                  onChanged: (String? newEngine) {
+                    if (newEngine != null) {
+                      setState(() {
+                        _mapEngine = newEngine;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Cambiando motor interno a $newEngine')),
+                      );
                     }
                   },
                 ),
               ),
             ),
 
-            // Controles flotantes de zoom y GPS
+            // Controles flotantes de GPS y Zoom
             Positioned(
               top: 75,
               right: 16,
@@ -144,7 +129,7 @@ class _MapScreenState extends State<MapScreen> {
                         _offset = Offset.zero;
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Mapa centrado en Ruta')),
+                        const SnackBar(content: Text('Mapa centrado en tu posición actual')),
                       );
                     },
                   ),
