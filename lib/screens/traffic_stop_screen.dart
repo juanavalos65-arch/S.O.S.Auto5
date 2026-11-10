@@ -13,7 +13,7 @@ class TrafficStopScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        (child: Column(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Icon(Icons.local_police, size: 64, color: Colors.teal),
@@ -46,7 +46,7 @@ class TrafficStopScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
           ],
-        )),
+        ),
       ),
     );
   }
