@@ -8,7 +8,6 @@ class MapScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // Simulación visual interactiva de grilla y mapa vial (compatible sin errores de API Key nativa)
           Container(
             color: const Color(0xFFE5EFFA),
             child: CustomPaint(
@@ -33,7 +32,6 @@ class MapScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Botón flotante superior para centrar GPS o ubicación actual
           Positioned(
             top: 80,
             right: 16,
@@ -54,13 +52,12 @@ class MapScreen extends StatelessWidget {
   }
 }
 
-// Pintor auxiliar para dar el efecto visual de calles y rutas en el fondo del mapa
 class MapGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      .color = Colors.blue.withOpacity(0.08)
-      .strokeWidth = 1.5;
+      ..color = Colors.blue.withOpacity(0.08)
+      ..strokeWidth = 1.5;
 
     const spacing = 40.0;
     for (double i = 0; i < size.width; i += spacing) {
