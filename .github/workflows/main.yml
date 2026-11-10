@@ -1,4 +1,4 @@
-name: Build S.O.S. Auto APK
+name: Build S.O.S. Auto Suite
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
       - name: Clean old Android files and regenerate clean platform
         run: |
           rm -rf android
-          flutter create . --platforms=android --project-name=sos_auto5
+          flutter create . --platforms=android,web --project-name=sos_auto5
 
       - name: Fix Kotlin Version in settings.gradle
         run: |
@@ -43,10 +43,16 @@ jobs:
           sed -i 's/version "1.8.22"/version "1.9.20"/g' android/settings.gradle || true
 
       - name: Build APK, App Bundle and Web
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+          flutter build web --release
 
-      - name: Upload Artifacts (APK)
+      - name: Upload All Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: sos-auto-release-bundles
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+            build/web/
