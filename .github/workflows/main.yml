@@ -35,11 +35,11 @@ jobs:
           rm -rf android
           flutter create . --platforms=android --project-name=sos_auto5
 
-      - name: Fix Kotlin Version in Gradle
+      - name: Force Modern Kotlin Version
         run: |
-          if [ -f android/build.gradle ]; then
-            sed -i "s/ext.kotlin_version = .*/ext.kotlin_version = '1.9.0'/g" android/build.gradle
-          fi
+          # Actualiza cualquier versión antigua de Kotlin a la 1.9.0 en los archivos de configuración de Gradle
+          find android -type f \( -name "build.gradle" -o -name "settings.gradle" \) -exec sed -i "s/1\.7\.[0-9]/1.9.0/g" {} +
+          find android -type f \( -name "build.gradle" -o -name "settings.gradle" \) -exec sed -i "s/1\.8\.[0-9]/1.9.0/g" {} +
 
       - name: Build APK, App Bundle and Web
         run: flutter build apk --release
