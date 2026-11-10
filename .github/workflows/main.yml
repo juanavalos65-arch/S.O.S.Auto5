@@ -33,7 +33,7 @@ jobs:
       - name: Clean old Android files and regenerate clean platform
         run: |
           rm -rf android
-          flutter create . --platforms=android,web --project-name=sos_auto5
+          flutter create . --platforms=android,web --project-name=sos_auto
 
       - name: Fix Kotlin Version in settings.gradle
         run: |
