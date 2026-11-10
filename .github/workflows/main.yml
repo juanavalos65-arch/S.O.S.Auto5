@@ -33,7 +33,7 @@ jobs:
       - name: Clean old Android files and regenerate clean platform
         run: |
           rm -rf android
-          flutter create . --platforms=android
+          flutter create . --platforms=android --project-name=sos_auto5
 
       - name: Build APK, App Bundle and Web
         run: flutter build apk --release
