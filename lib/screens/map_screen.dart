@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart'; // Opcional para abrir apps externas
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -12,6 +13,30 @@ class _MapScreenState extends State<MapScreen> {
   Offset _offset = Offset.zero;
   Offset _previousOffset = Offset.zero;
   double _previousScale = 1.0;
+  String _preferredMap = 'Google Maps'; // Opción predeterminada seleccionable
+
+  // Función para abrir la preferencia de mapa elegida por el usuario
+  Future<void> _launchExternalMap(String mapType) async {
+    // Coordenadas de prueba centradas en Ruta / Medellín
+    final String googleUrl = 'https://www.google.com/maps/search/?api=1&query=6.2442,-75.5812';
+    final String wazeUrl = 'https://waze.com/ul?ll=6.2442,-75.5812&navigate=yes';
+
+    final url = mapType == 'Waze' ? wazeUrl : googleUrl;
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Abriendo ruta con $mapType...')),
+    );
+
+    // Lógica segura para lanzar la URL del navegador o aplicación externa
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      debugPrint('Error al abrir el mapa externo: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,17 +68,22 @@ class _MapScreenState extends State<MapScreen> {
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.navigation, size: 48, color: Colors.blueAccent),
-                          SizedBox(height: 10),
-                          Text(
+                        children: [
+                          const Icon(Icons.navigation, size: 48, color: Colors.blueAccent),
+                          const SizedBox(height: 10),
+                          const Text(
                             'S.O.S. Auto - Navegación Activa',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            'Desliza para mover el mapa / Pellizca para hacer zoom',
-                            style: TextStyle(fontSize: 11, color: Colors.grey),
+                            'Motor Preferido: $_preferredMap',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blueGrey),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Desliza para mover / Pellizca para zoom',
+                            style: TextStyle(fontSize: 10, color: Colors.grey),
                           ),
                         ],
                       ),
@@ -62,7 +92,42 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ),
-            // Controles flotantes superiores
+            
+            // Selector flotante de preferencia de Mapa (Google Maps vs Waze)
+            Positioned(
+              top: 75,
+              left: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                ),
+                child: DropdownButton<String>(
+                  value: _preferredMap,
+                  underline: const SizedBox(),
+                  icon: const Icon(Icons.map, size: 18, color: Colors.blueAccent),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                  items: ['Google Maps', 'Waze'].map((String map) {
+                    return DropdownMenuItem<String>(
+                      value: map,
+                      child: Text('Mapa: $map'),
+                    );
+                  }).toList(),
+                  onChanged: (String? newMap) {
+                    if (newMap != null) {
+                      setState(() {
+                        _preferredMap = newMap;
+                      });
+                      _launchExternalMap(newMap);
+                    }
+                  },
+                ),
+              ),
+            ),
+
+            // Controles flotantes superiores derechos (GPS y Zoom)
             Positioned(
               top: 75,
               right: 16,
