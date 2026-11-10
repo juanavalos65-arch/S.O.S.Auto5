@@ -1,4 +1,3 @@
-
 name: Build S.O.S. Auto APK
 
 on:
@@ -31,13 +30,8 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Setup Gradle Wrapper Properties
-        run: |
-          mkdir -p android/gradle/wrapper
-          echo "distributionBase=GRADLE_USER_HOME" > android/gradle/wrapper/gradle-wrapper.properties
-          echo "distributionPath=wrapper/dists" >> android/gradle/wrapper/gradle-wrapper.properties
-          echo "distributionUrl=https\://services.gradle.org/gradle-7.5-bin.zip" >> android/gradle/wrapper/gradle-wrapper.properties
-          echo "systemProp.http.keepAlive=false" >> android/gradle/wrapper/gradle-wrapper.properties
+      - name: Regenerate Android Platform & Gradle Wrapper
+        run: flutter create . --platforms=android --project-name sos_auto
 
       - name: Build APK, App Bundle and Web
         run: flutter build apk --release
