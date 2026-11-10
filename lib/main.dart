@@ -5,6 +5,7 @@ import 'package:sos_auto5/screens/register_vehicle_screen.dart';
 import 'package:sos_auto5/screens/emergency_sos_screen.dart';
 import 'package:sos_auto5/screens/report_incident_screen.dart';
 import 'package:sos_auto5/screens/traffic_stop_screen.dart';
+import 'package:sos_auto5/screens/stolen_car_screen.dart';
 
 void main() {
   runApp(const SosAutoApp());
@@ -30,6 +31,7 @@ class SosAutoApp extends StatelessWidget {
         '/emergency': (context) => const EmergencySosScreen(emergencyType: 'General'),
         '/report': (context) => const ReportIncidentScreen(),
         '/traffic': (context) => const TrafficStopScreen(),
+        '/stolen': (context) => const StolenCarScreen(),
       },
     );
   }
@@ -200,8 +202,9 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                       _buildActionButton(context, 'Tránsito', Icons.local_police, Colors.teal, () {
                         Navigator.pushNamed(context, '/traffic');
                       }),
+                      // Botón corregido para que abra la pantalla exclusiva de Robo de Auto
                       _buildActionButton(context, 'Robo Auto', Icons.directions_car_filled, Colors.brown, () {
-                        Navigator.pushNamed(context, '/report');
+                        Navigator.pushNamed(context, '/stolen');
                       }),
                       _buildActionButton(context, 'Novedades', Icons.announcement, Colors.green, () {
                         Navigator.pushNamed(context, '/report');
