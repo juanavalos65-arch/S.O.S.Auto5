@@ -15,13 +15,13 @@ class _MapScreenState extends State<MapScreen> {
   double _previousScale = 1.0;
   String _preferredMap = 'Google Maps';
 
-  // Función nativa para abrir Google Maps o Waze mediante URL Scheme
-  Future<void> _launchMap(String mapType) async {
+  // Función para lanzar Google Maps o Waze externamente de forma real
+  Future<void> _launchMapApp(String mapType) async {
     setState(() {
       _preferredMap = mapType;
     });
 
-    // Coordenadas base de prueba (puedes ajustarlas a tu ubicación actual en ruta)
+    // Coordenadas de ejemplo de ruta / ubicación actual
     const double lat = 6.2442;
     const double lng = -75.5812;
 
@@ -36,11 +36,11 @@ class _MapScreenState extends State<MapScreen> {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo abrir $mapType en este dispositivo.')),
+          SnackBar(content: Text('No se pudo iniciar la aplicación de $mapType.')),
         );
       }
     } catch (e) {
-      debugPrint('Error al abrir el mapa: $e');
+      debugPrint('Error al abrir el mapa externo: $e');
     }
   }
 
@@ -123,7 +123,7 @@ class _MapScreenState extends State<MapScreen> {
                   }).toList(),
                   onChanged: (String? newMap) {
                     if (newMap != null) {
-                      _launchMap(newMap);
+                      _launchMapApp(newMap);
                     }
                   },
                 ),
