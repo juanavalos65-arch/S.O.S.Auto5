@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -15,30 +14,25 @@ class _MapScreenState extends State<MapScreen> {
   double _previousScale = 1.0;
   String _preferredMap = 'Google Maps';
 
-  // Método nativo para lanzar la aplicación de mapas seleccionada
-  Future<void> _openExternalMap(String mapType) async {
-    // Coordenadas base (ejemplo en ruta / Colombia)
-    const double lat = 6.2442;
-    const double lng = -75.5812;
+  void _selectMapEngine(String mapType) {
+    setState(() {
+      _preferredMap = mapType;
+    });
 
-    String url = '';
-    if (mapType == 'Waze') {
-      url = 'https://waze.com/ul?ll=$lat,$lng&navigate=yes';
-    } else {
-      url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
-    }
-
-    try {
-      if (await canLaunchUrlString(url)) {
-        await launchUrlString(url, mode: LaunchMode.externalApplication);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo abrir $mapType en este dispositivo.')),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error al abrir mapa: $e');
-    }
+    // Muestra un diálogo de confirmación simulando la apertura de la ruta externa seleccionada
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text('Navegación con $mapType'),
+        content: Text('Se ha establecido $mapType como su motor de preferencia para trazar la ruta en S.O.S. Auto.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Aceptar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -96,7 +90,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             
-            // Selector flotante de preferencia de Mapa estilo InDriver
+            // Selector flotante de preferencia de Mapa
             Positioned(
               top: 75,
               left: 16,
@@ -120,10 +114,7 @@ class _MapScreenState extends State<MapScreen> {
                   }).toList(),
                   onChanged: (String? newMap) {
                     if (newMap != null) {
-                      setState(() {
-                        _preferredMap = newMap;
-                      });
-                      _openExternalMap(newMap);
+                      _selectMapEngine(newMap);
                     }
                   },
                 ),
