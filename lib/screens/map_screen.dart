@@ -15,13 +15,12 @@ class _MapScreenState extends State<MapScreen> {
   double _previousScale = 1.0;
   String _preferredMap = 'Google Maps';
 
-  // Función para lanzar Google Maps o Waze externamente de forma real
+  // Función directa para abrir el mapa seleccionado
   Future<void> _launchMapApp(String mapType) async {
     setState(() {
       _preferredMap = mapType;
     });
 
-    // Coordenadas de ejemplo de ruta / ubicación actual
     const double lat = 6.2442;
     const double lng = -75.5812;
 
@@ -32,15 +31,15 @@ class _MapScreenState extends State<MapScreen> {
     final Uri uri = Uri.parse(urlString);
 
     try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
+      // Lanzamiento directo optimizado para Android
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      debugPrint('Error al abrir el mapa: $e');
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo iniciar la aplicación de $mapType.')),
+          SnackBar(content: Text('No se pudo iniciar $mapType. Verifique que esté instalado.')),
         );
       }
-    } catch (e) {
-      debugPrint('Error al abrir el mapa externo: $e');
     }
   }
 
@@ -60,7 +59,6 @@ class _MapScreenState extends State<MapScreen> {
         },
         child: Stack(
           children: [
-            // Fondo con grilla interactiva deslizable y escalable
             Positioned.fill(
               child: Transform(
                 transform: Matrix4.identity()
@@ -99,7 +97,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             
-            // Selector flotante de preferencia de Mapa (Google Maps vs Waze)
+            // Selector flotante de mapa
             Positioned(
               top: 75,
               left: 16,
@@ -130,7 +128,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
-            // Controles flotantes superiores derechos (GPS y Zoom)
+            // Controles flotantes de zoom y GPS
             Positioned(
               top: 75,
               right: 16,
