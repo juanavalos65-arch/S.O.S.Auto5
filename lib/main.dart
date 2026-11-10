@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:sos_auto5/screens/map_screen.dart';
+import 'package:sos_auto5/screens/register_vehicle_screen.dart';
+import 'package:sos_auto5/screens/emergency_sos_screen.dart';
+import 'package:sos_auto5/screens/report_incident_screen.dart';
+import 'package:sos_auto5/screens/traffic_stop_screen.dart';
 
 void main() {
   runApp(const SosAutoApp());
@@ -21,12 +26,16 @@ class SosAutoApp extends StatelessWidget {
       routes: {
         '/': (context) => const SplashScreen(),
         '/home': (context) => const MainHomeScreen(),
+        '/register': (context) => const RegisterVehicleScreen(),
+        '/emergency': (context) => const EmergencySosScreen(),
+        '/report': (context) => const ReportIncidentScreen(),
+        '/traffic': (context) => const TrafficStopScreen(),
       },
     );
   }
 }
 
-// 1. Pantalla de bienvenida con temporizador automático
+// Pantalla de Bienvenida (Splash Screen) con temporizador automático de 3 segundos
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -69,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// 2. Pantalla Principal con Logotipo, Banner Dinámico, Mapa y los 8 Botones
+// Pantalla Principal Interactiva con Banner, Mapa Real y los 8 Botones
 class MainHomeScreen extends StatefulWidget {
   const MainHomeScreen({super.key});
 
@@ -115,16 +124,9 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       ),
       body: Stack(
         children: [
-          // Fondo: Simulación del Mapa Interactivo
-          Container(
-            color: Colors.grey[200],
-            child: const Center(
-              child: Text(
-                '🗺️ Mapa Interactivo en Tiempo Real\n(Centrado en Ruta / Medellín)',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.black45, fontWeight: FontWeight.w500),
-              ),
-            ),
+          // Fondo: Mapa interactivo real proveniente de lib/screens/map_screen.dart
+          const Positioned.fill(
+            child: MapScreen(),
           ),
 
           // Banner Dinámico Informativo y Comercial (Superior)
@@ -160,7 +162,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
             ),
           ),
 
-          // Panel Inferior con los 8 Botones Flotantes de Asistencia
+          // Panel Inferior con los 8 Botones Flotantes Conectados
           Positioned(
             bottom: 15,
             left: 10,
@@ -177,40 +179,40 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Fila 1
+                  // Fila 1 (4 Botones)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildActionButton(context, 'Regístrese', Icons.person_add, Colors.indigo, () {
-                        _showInfoDialog(context, 'Registro', 'Módulo de registro de usuario, placa y conductores múltiples.');
+                        Navigator.pushNamed(context, '/register');
                       }),
                       _buildActionButton(context, 'Paute Aquí', Icons.campaign, Colors.blue, () {
-                        _showInfoDialog(context, 'Paute Aquí (Wompi)', 'Pasarela Wompi para planes de pauta publicitaria comercial.');
+                        _showWompiDialog(context);
                       }),
                       _buildActionButton(context, 'Me Varé', Icons.car_repair, Colors.orange, () {
-                        _showInfoDialog(context, 'Asistencia: Me Varé', 'Conectando directamente con grúas y mecánicos cercanos.');
+                        Navigator.pushNamed(context, '/emergency');
                       }),
                       _buildActionButton(context, 'Accidente', Icons.warning, Colors.red, () {
-                        _showInfoDialog(context, 'Alerta de Accidente', 'Protocolo de emergencia con cuenta regresiva de 5s y PIN.');
+                        Navigator.pushNamed(context, '/emergency');
                       }),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // Fila 2
+                  // Fila 2 (4 Botones)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildActionButton(context, 'Peligro', Icons.security, Colors.purple, () {
-                        _showInfoDialog(context, 'Alerta de Seguridad', 'Botón de seguridad personal con anulación por biometría/PIN.');
+                        Navigator.pushNamed(context, '/emergency');
                       }),
                       _buildActionButton(context, 'Tránsito', Icons.local_police, Colors.teal, () {
-                        _showInfoDialog(context, 'Agente de Tránsito', 'Registro y control ante retenciones o procedimientos viales.');
+                        Navigator.pushNamed(context, '/traffic');
                       }),
                       _buildActionButton(context, 'Robo Auto', Icons.directions_car_filled, Colors.brown, () {
-                        _showInfoDialog(context, 'Reporte Robo de Auto', 'Emisión inmediata de alerta en red y banner de la comunidad.');
+                        Navigator.pushNamed(context, '/report');
                       }),
                       _buildActionButton(context, 'Novedades', Icons.announcement, Colors.green, () {
-                        _showInfoDialog(context, 'Novedades en la Vía', 'Reporte de cierres, derrumbes y estado de las carreteras.');
+                        Navigator.pushNamed(context, '/report');
                       }),
                     ],
                   ),
@@ -223,7 +225,6 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     );
   }
 
-  // Widget auxiliar corregido con onTap para InkWell
   Widget _buildActionButton(BuildContext context, String label, IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
@@ -245,17 +246,22 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     );
   }
 
-  // Diálogo informativo para las acciones de los botones
-  void _showInfoDialog(BuildContext context, String title, String content) {
+  void _showWompiDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
+        title: const Text('Paute Aquí - S.O.S. Auto'),
+        content: const Text(
+          'Planes publicitarios:\n'
+          '• 1 Mes: $50.000 COP\n'
+          '• 6 Meses: $550.000 COP\n'
+          '• 1 Año: $500.000 COP\n\n'
+          'Redirigiendo a la pasarela oficial Wompi.'
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Entendido'),
+            child: const Text('Cerrar'),
           ),
         ],
       ),
