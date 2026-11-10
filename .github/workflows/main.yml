@@ -30,8 +30,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Regenerate Android Platform & Gradle Wrapper
-        run: flutter create . --platforms=android --project-name sos_auto
+      - name: Clean old Android files and regenerate clean platform
+        run: |
+          rm -rf android
+          flutter create . --platforms=android
 
       - name: Build APK, App Bundle and Web
         run: flutter build apk --release
