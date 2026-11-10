@@ -26,7 +26,7 @@ class SosAutoApp extends StatelessWidget {
   }
 }
 
-// 1. Pantalla de bienvenida con temporizador automático
+// Pantalla de bienvenida con temporizador automático de 3 segundos
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -38,7 +38,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Temporizador de 3 segundos para pasar automáticamente al mapa/menú
     Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacementNamed(context, '/home');
     });
@@ -70,7 +69,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// 2. Pantalla principal con el mapa y accesos operativos
+// Pantalla Principal Interactiva con Mapa y Botones de Asistencia
 class MainHomeScreen extends StatelessWidget {
   const MainHomeScreen({super.key});
 
@@ -79,17 +78,70 @@ class MainHomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('S.O.S. Auto'),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        foregroundColor: Colors.black,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        elevation: 2,
       ),
       body: Stack(
         children: [
-          // Aquí irá tu widget de Mapa Interactivo
-          const Center(
-            child: Text(
-              'Mapa Interactivo y Botones Flotantes',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+          // Simulación o contenedor del Mapa Interactivo de fondo
+          Container(
+            color: Colors.grey[200],
+            child: const Center(
+              child: Text(
+                'Mapa Interactivo Activo (Medellín / Vías)',
+                style: TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+            ),
+          ),
+          // Panel inferior o botones flotantes de asistencia
+          Positioned(
+            bottom: 20,
+            left: 16,
+            right: 16,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Acción Me Varé
+                      },
+                      icon: const Icon(Icons.car_repair, color: Colors.orange),
+                      label: const Text('Me Varé'),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Acción Me Accidenté
+                      },
+                      icon: const Icon(Icons.warning, color: Colors.red),
+                      label: const Text('Me Accidenté'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Acción En Peligro
+                      },
+                      icon: const Icon(Icons.security, color: Colors.purple),
+                      label: const Text('Peligro'),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Acción Paute Aquí
+                      },
+                      icon: const Icon(Icons.campaign, color: Colors.blue),
+                      label: const Text('Paute Aquí'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
