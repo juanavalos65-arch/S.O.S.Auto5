@@ -1,3 +1,75 @@
+import 'package:flutter/material.dart';
+import 'dart:async';
+
+void main() {
+  runApp(const SosAutoApp());
+}
+
+class SosAutoApp extends StatelessWidget {
+  const SosAutoApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'S.O.S. Auto',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/home': (context) => const MainHomeScreen(),
+      },
+    );
+  }
+}
+
+// 1. Pantalla de bienvenida con temporizador automático
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(const Duration(seconds: 3), () {
+      Navigator.pushReplacementNamed(context, '/home');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.directions_car, size: 80, color: Colors.blue),
+            SizedBox(height: 20),
+            Text(
+              'Bienvenido a S.O.S. Auto',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Sistema de asistencia y tránsito activo',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// 2. Pantalla principal con mapa y botones interactivos
 class MainHomeScreen extends StatelessWidget {
   const MainHomeScreen({super.key});
 
@@ -35,7 +107,6 @@ class MainHomeScreen extends StatelessWidget {
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Acción Me Varé
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Activando asistencia: Me Varé')),
                         );
@@ -45,15 +116,14 @@ class MainHomeScreen extends StatelessWidget {
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Acción Me Accidenté
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
+                          builder: (BuildContext dialogContext) => AlertDialog(
                             title: const Text('Alerta de Accidente'),
                             content: const Text('Se iniciará el protocolo de emergencia con cuenta regresiva de 5 segundos.'),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () => Navigator.pop(dialogContext),
                                 child: const Text('Cancelar'),
                               ),
                             ],
@@ -71,7 +141,6 @@ class MainHomeScreen extends StatelessWidget {
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Acción Peligro
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Alerta de seguridad activada: Peligro')),
                         );
@@ -81,15 +150,14 @@ class MainHomeScreen extends StatelessWidget {
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Acción Paute Aquí (Wompi)
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
+                          builder: (BuildContext dialogContext) => AlertDialog(
                             title: const Text('Paute Aquí - S.O.S. Auto'),
                             content: const Text('Redirigiendo a la pasarela de pagos Wompi para planes publicitarios.'),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () => Navigator.pop(dialogContext),
                                 child: const Text('Cerrar'),
                               ),
                             ],
