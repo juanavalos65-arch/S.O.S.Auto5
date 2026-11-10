@@ -69,108 +69,193 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// 2. Pantalla principal con mapa y botones interactivos
-class MainHomeScreen extends StatelessWidget {
+// 2. Pantalla Principal con Logotipo, Banner Dinámico, Mapa y los 8 Botones
+class MainHomeScreen extends StatefulWidget {
   const MainHomeScreen({super.key});
+
+  @override
+  State<MainHomeScreen> createState() => _MainHomeScreenState();
+}
+
+class _MainHomeScreenState extends State<MainHomeScreen> {
+  int _bannerIndex = 0;
+  final List<String> _bannerMessages = [
+    '🏢 Aliado Comercial: Talleres y Grúas Autorizadas (Paute Aquí)',
+    '🚨 ALERTA ROBO: Vehículo Chevrolet Aveo - Placa HXU874',
+    '⚠️ Novedad Vial: Precaución en vía por clima y mantenimiento'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Rotación automática del banner dinámico cada 4 segundos
+    Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (mounted) {
+        setState(() {
+          _bannerIndex = (_bannerIndex + 1) % _bannerMessages.length;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('S.O.S. Auto'),
-        backgroundColor: Colors.blue,
+        title: Row(
+          children: const [
+            Icon(Icons.local_shipping, color: Colors.white),
+            SizedBox(width: 10),
+            Text('S.O.S. Auto', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
         elevation: 2,
       ),
       body: Stack(
         children: [
-          // Contenedor del Mapa Interactivo de fondo
+          // Fondo: Simulación del Mapa Interactivo
           Container(
             color: Colors.grey[200],
             child: const Center(
               child: Text(
-                'Mapa Interactivo Activo (Medellín / Vías)',
-                style: TextStyle(fontSize: 14, color: Colors.black54),
+                '🗺️ Mapa Interactivo en Tiempo Real\n(Centrado en Ruta / Medellín)',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.black45, fontWeight: FontWeight.w500),
               ),
             ),
           ),
-          // Botones flotantes de asistencia en la parte inferior
+
+          // Banner Dinámico Informativo y Comercial (Superior)
           Positioned(
-            bottom: 20,
-            left: 16,
-            right: 16,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            top: 10,
+            left: 12,
+            right: 12,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              child: Container(
+                key: ValueKey<int>(_bannerIndex),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.black87.withOpacity(0.85),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black26, blurRadius: 4, offset: const Offset(0, 2)),
+                  ],
+                ),
+                child: Row(
                   children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Activando asistencia: Me Varé')),
-                        );
-                      },
-                      icon: const Icon(Icons.car_repair, color: Colors.orange),
-                      label: const Text('Me Varé'),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext dialogContext) => AlertDialog(
-                            title: const Text('Alerta de Accidente'),
-                            content: const Text('Se iniciará el protocolo de emergencia con cuenta regresiva de 5 segundos.'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(dialogContext),
-                                child: const Text('Cancelar'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.warning, color: Colors.red),
-                      label: const Text('Me Accidenté'),
+                    const Icon(Icons.info_outline, color: Colors.amber, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _bannerMessages[_bannerIndex],
+                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Alerta de seguridad activada: Peligro')),
-                        );
-                      },
-                      icon: const Icon(Icons.security, color: Colors.purple),
-                      label: const Text('Peligro'),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext dialogContext) => AlertDialog(
-                            title: const Text('Paute Aquí - S.O.S. Auto'),
-                            content: const Text('Redirigiendo a la pasarela de pagos Wompi para planes publicitarios.'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(dialogContext),
-                                child: const Text('Cerrar'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.campaign, color: Colors.blue),
-                      label: const Text('Paute Aquí'),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
+          ),
+
+          // Panel Inferior con los 8 Botones Flotantes de Asistencia
+          Positioned(
+            bottom: 15,
+            left: 10,
+            right: 10,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.92),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(color: Colors.black12, blurRadius: 6, offset: const Offset(0, -2)),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Fila 1
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildActionButton(context, 'Regístrese', Icons.person_add, Colors.indigo, () {
+                        _showInfoDialog(context, 'Registro', 'Módulo de registro de usuario, placa y conductores múltiples.');
+                      }),
+                      _buildActionButton(context, 'Paute Aquí', Icons.campaign, Colors.blue, () {
+                        _showInfoDialog(context, 'Paute Aquí (Wompi)', 'Pasarela Wompi para planes de pauta publicitaria comercial.');
+                      }),
+                      _buildActionButton(context, 'Me Varé', Icons.car_repair, Colors.orange, () {
+                        _showInfoDialog(context, 'Asistencia: Me Varé', 'Conectando directamente con grúas y mecánicos cercanos.');
+                      }),
+                      _buildActionButton(context, 'Accidente', Icons.warning, Colors.red, () {
+                        _showInfoDialog(context, 'Alerta de Accidente', 'Protocolo de emergencia con cuenta regresiva de 5s y PIN.');
+                      }),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Fila 2
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildActionButton(context, 'Peligro', Icons.security, Colors.purple, () {
+                        _showInfoDialog(context, 'Alerta de Seguridad', 'Botón de seguridad personal con anulación por biometría/PIN.');
+                      }),
+                      _buildActionButton(context, 'Tránsito', Icons.local_police, Colors.teal, () {
+                        _showInfoDialog(context, 'Agente de Tránsito', 'Registro y control ante retenciones o procedimientos viales.');
+                      }),
+                      _buildActionButton(context, 'Robo Auto', Icons.directions_car_filled, Colors.brown, () {
+                        _showInfoDialog(context, 'Reporte Robo de Auto', 'Emisión inmediata de alerta en red y banner de la comunidad.');
+                      }),
+                      _buildActionButton(context, 'Novedades', Icons.announcement, Colors.green, () {
+                        _showInfoDialog(context, 'Novedades en la Vía', 'Reporte de cierres, derrumbes y estado de las carreteras.');
+                      }),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget auxiliar para construir los botones flotantes de forma limpia
+  Widget _buildActionButton(BuildContext context, String label, IconData icon, Color color, VoidCallback onPressed) {
+    return InkWell(
+      onPressed: onPressed,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: color.withOpacity(0.15),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Diálogo informativo para las acciones de los botones
+  void _showInfoDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Entendido'),
           ),
         ],
       ),
