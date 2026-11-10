@@ -10,25 +10,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # Iconos oficiales y elementos visuales
-  cupertino_icons: ^1.0.6
-
-  # Puedes descomentar las siguientes dependencias si tus nuevos archivos las requieren:
-  # http: ^1.2.0                # Para peticiones de red / API
-  # shared_preferences: ^2.2.2   # Para almacenamiento local (PIN, sesión, placa)
-  # geolocator: ^10.1.0          # Para ubicación GPS en tiempo real y alertas
-  # google_maps_flutter: ^2.5.3  # Para el mapa interactivo principal
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
 
-  # Si agregas el logotipo oficial u otros recursos gráficos (imágenes/iconos), decláralos aquí:
+  # Si en el futuro agregas recursos como el logotipo oficial, puedes descomentar esto:
   # assets:
   #   - assets/images/
