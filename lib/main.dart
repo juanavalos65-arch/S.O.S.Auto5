@@ -27,7 +27,7 @@ class SosAutoApp extends StatelessWidget {
         '/': (context) => const SplashScreen(),
         '/home': (context) => const MainHomeScreen(),
         '/register': (context) => const RegisterVehicleScreen(),
-        '/emergency': (context) => const EmergencySosScreen(),
+        '/emergency': (context) => const EmergencySosScreen(emergencyType: 'General'),
         '/report': (context) => const ReportIncidentScreen(),
         '/traffic': (context) => const TrafficStopScreen(),
       },
@@ -35,7 +35,7 @@ class SosAutoApp extends StatelessWidget {
   }
 }
 
-// Pantalla de Bienvenida (Splash Screen) con temporizador automático de 3 segundos
+// Pantalla de Bienvenida (Splash Screen)
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -97,7 +97,6 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Rotación automática del banner dinámico cada 4 segundos
     Timer.periodic(const Duration(seconds: 4), (timer) {
       if (mounted) {
         setState(() {
@@ -124,12 +123,9 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       ),
       body: Stack(
         children: [
-          // Fondo: Mapa interactivo real proveniente de lib/screens/map_screen.dart
           const Positioned.fill(
             child: MapScreen(),
           ),
-
-          // Banner Dinámico Informativo y Comercial (Superior)
           Positioned(
             top: 10,
             left: 12,
@@ -161,8 +157,6 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
               ),
             ),
           ),
-
-          // Panel Inferior con los 8 Botones Flotantes Conectados
           Positioned(
             bottom: 15,
             left: 10,
@@ -179,7 +173,6 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Fila 1 (4 Botones)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -198,7 +191,6 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // Fila 2 (4 Botones)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -253,9 +245,9 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
         title: const Text('Paute Aquí - S.O.S. Auto'),
         content: const Text(
           'Planes publicitarios:\n'
-          '• 1 Mes: $50.000 COP\n'
-          '• 6 Meses: $550.000 COP\n'
-          '• 1 Año: $500.000 COP\n\n'
+          '• 1 Mes: 50.000 COP\n'
+          '• 6 Meses: 550.000 COP\n'
+          '• 1 Año: 500.000 COP\n\n'
           'Redirigiendo a la pasarela oficial Wompi.'
         ),
         actions: [
