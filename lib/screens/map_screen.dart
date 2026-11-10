@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart'; // Opcional para abrir apps externas
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -13,29 +12,20 @@ class _MapScreenState extends State<MapScreen> {
   Offset _offset = Offset.zero;
   Offset _previousOffset = Offset.zero;
   double _previousScale = 1.0;
-  String _preferredMap = 'Google Maps'; // Opción predeterminada seleccionable
+  String _preferredMap = 'Google Maps'; // Opción elegida por el usuario
 
-  // Función para abrir la preferencia de mapa elegida por el usuario
-  Future<void> _launchExternalMap(String mapType) async {
-    // Coordenadas de prueba centradas en Ruta / Medellín
-    final String googleUrl = 'https://www.google.com/maps/search/?api=1&query=6.2442,-75.5812';
-    final String wazeUrl = 'https://waze.com/ul?ll=6.2442,-75.5812&navigate=yes';
-
-    final url = mapType == 'Waze' ? wazeUrl : googleUrl;
+  void _selectMapEngine(String mapType) {
+    setState(() {
+      _preferredMap = mapType;
+    });
     
+    // Muestra un aviso flotante confirmando el motor de navegación seleccionado estilo InDriver / Waze
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Abriendo ruta con $mapType...')),
+      SnackBar(
+        content: Text('Motor de navegación cambiado a: $mapType'),
+        duration: const Duration(seconds: 2),
+      ),
     );
-
-    // Lógica segura para lanzar la URL del navegador o aplicación externa
-    try {
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
-    } catch (e) {
-      debugPrint('Error al abrir el mapa externo: $e');
-    }
   }
 
   @override
@@ -77,8 +67,8 @@ class _MapScreenState extends State<MapScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Motor Preferido: $_preferredMap',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blueGrey),
+                            'Navegando con: $_preferredMap',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.blueGrey),
                           ),
                           const SizedBox(height: 2),
                           const Text(
@@ -93,14 +83,14 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             
-            // Selector flotante de preferencia de Mapa (Google Maps vs Waze)
+            // Selector flotante de preferencia de Mapa (Google Maps vs Waze) estilo InDriver
             Positioned(
               top: 75,
               left: 16,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withOpacity(0.95),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                 ),
@@ -112,15 +102,12 @@ class _MapScreenState extends State<MapScreen> {
                   items: ['Google Maps', 'Waze'].map((String map) {
                     return DropdownMenuItem<String>(
                       value: map,
-                      child: Text('Mapa: $map'),
+                      child: Text('App: $map'),
                     );
                   }).toList(),
                   onChanged: (String? newMap) {
                     if (newMap != null) {
-                      setState(() {
-                        _preferredMap = newMap;
-                      });
-                      _launchExternalMap(newMap);
+                      _selectMapEngine(newMap);
                     }
                   },
                 ),
