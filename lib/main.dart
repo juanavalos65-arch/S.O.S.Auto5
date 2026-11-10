@@ -223,10 +223,10 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     );
   }
 
-  // Widget auxiliar para construir los botones flotantes de forma limpia
-  Widget _buildActionButton(BuildContext context, String label, IconData icon, Color color, VoidCallback onPressed) {
+  // Widget auxiliar corregido con onTap para InkWell
+  Widget _buildActionButton(BuildContext context, String label, IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
-      onPressed: onPressed,
+      onTap: onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
