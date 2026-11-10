@@ -1,75 +1,3 @@
-import 'package:flutter/material.dart';
-import 'dart:async';
-
-void main() {
-  runApp(const SosAutoApp());
-}
-
-class SosAutoApp extends StatelessWidget {
-  const SosAutoApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'S.O.S. Auto',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/home': (context) => const MainHomeScreen(),
-      },
-    );
-  }
-}
-
-// Pantalla de bienvenida con temporizador automático de 3 segundos
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, '/home');
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.directions_car, size: 80, color: Colors.blue),
-            SizedBox(height: 20),
-            Text(
-              'Bienvenido a S.O.S. Auto',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Sistema de asistencia y tránsito activo',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Pantalla Principal Interactiva con Mapa y Botones de Asistencia
 class MainHomeScreen extends StatelessWidget {
   const MainHomeScreen({super.key});
 
@@ -84,7 +12,7 @@ class MainHomeScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          // Simulación o contenedor del Mapa Interactivo de fondo
+          // Contenedor del Mapa Interactivo de fondo
           Container(
             color: Colors.grey[200],
             child: const Center(
@@ -94,7 +22,7 @@ class MainHomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Panel inferior o botones flotantes de asistencia
+          // Botones flotantes de asistencia en la parte inferior
           Positioned(
             bottom: 20,
             left: 16,
@@ -108,6 +36,9 @@ class MainHomeScreen extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         // Acción Me Varé
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Activando asistencia: Me Varé')),
+                        );
                       },
                       icon: const Icon(Icons.car_repair, color: Colors.orange),
                       label: const Text('Me Varé'),
@@ -115,6 +46,19 @@ class MainHomeScreen extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         // Acción Me Accidenté
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Alerta de Accidente'),
+                            content: const Text('Se iniciará el protocolo de emergencia con cuenta regresiva de 5 segundos.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancelar'),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                       icon: const Icon(Icons.warning, color: Colors.red),
                       label: const Text('Me Accidenté'),
@@ -127,14 +71,30 @@ class MainHomeScreen extends StatelessWidget {
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Acción En Peligro
+                        // Acción Peligro
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Alerta de seguridad activada: Peligro')),
+                        );
                       },
                       icon: const Icon(Icons.security, color: Colors.purple),
                       label: const Text('Peligro'),
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Acción Paute Aquí
+                        // Acción Paute Aquí (Wompi)
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Paute Aquí - S.O.S. Auto'),
+                            content: const Text('Redirigiendo a la pasarela de pagos Wompi para planes publicitarios.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cerrar'),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                       icon: const Icon(Icons.campaign, color: Colors.blue),
                       label: const Text('Paute Aquí'),
