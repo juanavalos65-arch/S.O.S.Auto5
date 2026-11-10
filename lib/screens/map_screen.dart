@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -14,25 +15,33 @@ class _MapScreenState extends State<MapScreen> {
   double _previousScale = 1.0;
   String _preferredMap = 'Google Maps';
 
-  void _selectMapEngine(String mapType) {
+  // Función nativa para abrir Google Maps o Waze mediante URL Scheme
+  Future<void> _launchMap(String mapType) async {
     setState(() {
       _preferredMap = mapType;
     });
 
-    // Muestra un diálogo de confirmación simulando la apertura de la ruta externa seleccionada
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text('Navegación con $mapType'),
-        content: Text('Se ha establecido $mapType como su motor de preferencia para trazar la ruta en S.O.S. Auto.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Aceptar'),
-          ),
-        ],
-      ),
-    );
+    // Coordenadas base de prueba (puedes ajustarlas a tu ubicación actual en ruta)
+    const double lat = 6.2442;
+    const double lng = -75.5812;
+
+    final String urlString = mapType == 'Waze'
+        ? 'https://waze.com/ul?ll=$lat,$lng&navigate=yes'
+        : 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+
+    final Uri uri = Uri.parse(urlString);
+
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo abrir $mapType en este dispositivo.')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error al abrir el mapa: $e');
+    }
   }
 
   @override
@@ -90,7 +99,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             
-            // Selector flotante de preferencia de Mapa
+            // Selector flotante de preferencia de Mapa (Google Maps vs Waze)
             Positioned(
               top: 75,
               left: 16,
@@ -114,7 +123,7 @@ class _MapScreenState extends State<MapScreen> {
                   }).toList(),
                   onChanged: (String? newMap) {
                     if (newMap != null) {
-                      _selectMapEngine(newMap);
+                      _launchMap(newMap);
                     }
                   },
                 ),
