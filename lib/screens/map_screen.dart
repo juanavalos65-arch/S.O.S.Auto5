@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -12,20 +13,32 @@ class _MapScreenState extends State<MapScreen> {
   Offset _offset = Offset.zero;
   Offset _previousOffset = Offset.zero;
   double _previousScale = 1.0;
-  String _preferredMap = 'Google Maps'; // Opción elegida por el usuario
+  String _preferredMap = 'Google Maps';
 
-  void _selectMapEngine(String mapType) {
-    setState(() {
-      _preferredMap = mapType;
-    });
-    
-    // Muestra un aviso flotante confirmando el motor de navegación seleccionado estilo InDriver / Waze
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Motor de navegación cambiado a: $mapType'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  // Método nativo para lanzar la aplicación de mapas seleccionada
+  Future<void> _openExternalMap(String mapType) async {
+    // Coordenadas base (ejemplo en ruta / Colombia)
+    const double lat = 6.2442;
+    const double lng = -75.5812;
+
+    String url = '';
+    if (mapType == 'Waze') {
+      url = 'https://waze.com/ul?ll=$lat,$lng&navigate=yes';
+    } else {
+      url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+    }
+
+    try {
+      if (await canLaunchUrlString(url)) {
+        await launchUrlString(url, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo abrir $mapType en este dispositivo.')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error al abrir mapa: $e');
+    }
   }
 
   @override
@@ -67,7 +80,7 @@ class _MapScreenState extends State<MapScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Navegando con: $_preferredMap',
+                            'App seleccionada: $_preferredMap',
                             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.blueGrey),
                           ),
                           const SizedBox(height: 2),
@@ -83,7 +96,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             
-            // Selector flotante de preferencia de Mapa (Google Maps vs Waze) estilo InDriver
+            // Selector flotante de preferencia de Mapa estilo InDriver
             Positioned(
               top: 75,
               left: 16,
@@ -102,12 +115,15 @@ class _MapScreenState extends State<MapScreen> {
                   items: ['Google Maps', 'Waze'].map((String map) {
                     return DropdownMenuItem<String>(
                       value: map,
-                      child: Text('App: $map'),
+                      child: Text('Abrir en: $map'),
                     );
                   }).toList(),
                   onChanged: (String? newMap) {
                     if (newMap != null) {
-                      _selectMapEngine(newMap);
+                      setState(() {
+                        _preferredMap = newMap;
+                      });
+                      _openExternalMap(newMap);
                     }
                   },
                 ),
@@ -130,7 +146,7 @@ class _MapScreenState extends State<MapScreen> {
                         _offset = Offset.zero;
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Mapa centrado en Ruta / Medellín')),
+                        const SnackBar(content: Text('Mapa centrado en Ruta')),
                       );
                     },
                   ),
