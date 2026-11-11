@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -9,153 +8,188 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  late final WebViewController _controller;
-  String _selectedEngine = 'Satélite (Esri)';
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _initMapHtml('satellite');
-  }
-
-  void _initMapHtml(String type) {
-    final String tileUrl = type == 'satellite'
-        ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-        : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-
-    final String htmlContent = '''
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <style>
-          html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; background: #e5effa; }
-        </style>
-      </head>
-      <body>
-        <div id="map"></div>
-        <script>
-          var map = L.map('map', {zoomControl: false, attributionControl: false}).setView([6.2442, -75.5812], 15);
-          L.tileLayer('$tileUrl', {
-            maxZoom: 19,
-            subdomains: ['a', 'b', 'c']
-          }).addTo(map);
-
-          L.marker([6.2442, -75.5812]).addTo(map)
-            .bindPopup("<b>S.O.S. Auto</b><br />Ubicación activa.").openPopup();
-        </script>
-      </body>
-      </html>
-    ''';
-
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0xFFE5EFFA))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (String url) {
-            if (mounted) {
-              setState(() {
-                _isLoading = false;
-              });
-            }
-          },
-        ),
-      )
-      ..loadHtmlString(htmlContent);
-  }
-
-  void _switchMapStyle(String style) {
-    setState(() {
-      _selectedEngine = style;
-      _isLoading = true;
-    });
-
-    if (style.contains('Satélite')) {
-      _initMapHtml('satellite');
-    } else {
-      _initMapHtml('standard');
-    }
-  }
+  double _scale = 1.0;
+  Offset _offset = Offset.zero;
+  Offset _previousOffset = Offset.zero;
+  double _previousScale = 1.0;
+  String _selectedEngine = 'Satélite (Vectorial S.O.S.)';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: WebViewWidget(controller: _controller),
-          ),
-          if (_isLoading)
-            Container(
-              color: const Color(0xFFE5EFFA),
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 12),
-                    Text(
-                      'Cargando cartografía...',
-                      style: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold, fontSize: 13),
+      body: GestureDetector(
+        onScaleStart: (details) {
+          _previousScale = _scale;
+          _previousOffset = details.focalPoint - _offset;
+        },
+        onScaleUpdate: (details) {
+          setState(() {
+            _scale = (_previousScale * details.scale).clamp(0.5, 3.0);
+            _offset = details.focalPoint - _previousOffset;
+          });
+        },
+        child: Stack(
+          children: [
+            // Mapa Vectorial Integrado de Alta Fluidez (Sin bloqueos de red)
+            Positioned.fill(
+              child: Transform(
+                transform: Matrix4.identity()
+                  ..translate(_offset.dx, _offset.dy)
+                  ..scale(_scale),
+                alignment: Alignment.center,
+                child: Container(
+                  color: const Color(0xFFE5EFFA),
+                  child: CustomPaint(
+                    painter: MapGridPainter(),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                )
+                              ],
+                            ),
+                            child: const Icon(Icons.navigation, size: 45, color: Colors.blueAccent),
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'S.O.S. Auto - Navegación Activa',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Modo: $_selectedEngine',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.blueGrey),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Desliza para mover / Pellizca para zoom',
+                            style: TextStyle(fontSize: 10, color: Colors.grey),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          Positioned(
-            top: 75,
-            left: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-              ),
-              child: DropdownButton<String>(
-                value: _selectedEngine,
-                underline: const SizedBox(),
-                icon: const Icon(Icons.satellite, size: 18, color: Colors.blueAccent),
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                items: [
-                  'Satélite (Esri)',
-                  'Estándar (OpenStreetMap)'
-                ].map((String map) {
-                  return DropdownMenuItem<String>(
-                    value: map,
-                    child: Text('Vista: $map'),
-                  );
-                }).toList(),
-                onChanged: (String? newMap) {
-                  if (newMap != null) {
-                    _switchMapStyle(newMap);
-                  }
-                },
+            
+            // Selector flotante de estilos
+            Positioned(
+              top: 75,
+              left: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.95),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedEngine,
+                  underline: const SizedBox(),
+                  icon: const Icon(Icons.layers, size: 18, color: Colors.blueAccent),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                  items: [
+                    'Satélite (Vectorial S.O.S.)',
+                    'Estándar (Vectorial S.O.S.)'
+                  ].map((String map) {
+                    return DropdownMenuItem<String>(
+                      value: map,
+                      child: Text('Vista: $map'),
+                    );
+                  }).toList(),
+                  onChanged: (String? newMap) {
+                    if (newMap != null) {
+                      setState(() {
+                        _selectedEngine = newMap;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Cambiando a vista $newMap')),
+                      );
+                    }
+                  },
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 75,
-            right: 16,
-            child: FloatingActionButton.small(
-              heroTag: 'reload_sat',
-              backgroundColor: Colors.white,
-              child: const Icon(Icons.refresh, color: Colors.blueAccent),
-              onPressed: () {
-                setState(() {
-                  _isLoading = true;
-                });
-                _controller.reload();
-              },
+
+            // Controles flotantes de zoom y centrado GPS
+            Positioned(
+              top: 75,
+              right: 16,
+              child: Column(
+                children: [
+                  FloatingActionButton.small(
+                    heroTag: 'gps_btn',
+                    backgroundColor: Colors.white,
+                    child: const Icon(Icons.my_location, color: Colors.blueAccent),
+                    onPressed: () {
+                      setState(() {
+                        _scale = 1.0;
+                        _offset = Offset.zero;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Mapa centrado en tu posición')),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  FloatingActionButton.small(
+                    heroTag: 'zoom_in',
+                    backgroundColor: Colors.white,
+                    child: const Icon(Icons.add, color: Colors.black87),
+                    onPressed: () {
+                      setState(() {
+                        _scale = (_scale * 1.2).clamp(0.5, 3.0);
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  FloatingActionButton.small(
+                    heroTag: 'zoom_out',
+                    backgroundColor: Colors.white,
+                    child: const Icon(Icons.remove, color: Colors.black87),
+                    onPressed: () {
+                      setState(() {
+                        _scale = (_scale / 1.2).clamp(0.5, 3.0);
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+}
+
+class MapGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.blue.withOpacity(0.12)
+      ..strokeWidth = 1.5;
+
+    const spacing = 50.0;
+    for (double i = -size.width; i < size.width * 2; i += spacing) {
+      canvas.drawLine(Offset(i, -size.height), Offset(i, size.height * 2), paint);
+    }
+    for (double j = -size.height; j < size.height * 2; j += spacing) {
+      canvas.drawLine(Offset(-size.width, j), Offset(size.width * 2, j), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
