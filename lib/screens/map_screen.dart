@@ -10,18 +10,56 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   late final WebViewController _controller;
-  String _selectedEngine = 'Google Maps (Interno)';
+  String _selectedEngine = 'Satélite (Esri)';
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    const String initialUrl = 'https://maps.google.com/maps?q=6.2442,-75.5812&z=15&output=embed';
-    
+    _initMapHtml('satellite');
+  }
+
+  void _initMapHtml(String type) {
+    // Definimos las URLs de los proveedores de mapas gratuitos (Satélite vs Estándar)
+    final String tileUrl = type == 'satellite'
+        // Mosaicos satelitales gratuitos de alta resolución (Esri World Imagery)
+        ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        // Mosaicos estándar gratuitos (OpenStreetMap)
+        : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+    // HTML interactivo con Leaflet.js incrustado en la WebView para control total sin API Key
+    final String htmlContent = '''
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <style>
+          html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; background: #e5effa; }
+        </style>
+      </head>
+      <body>
+        <div id="map"></div>
+        <script>
+          var map = L.map('map', {zoomControl: false}).setView([6.2442, -75.5812], 15);
+          L.tileLayer('$tileUrl', {
+            maxZoom: 19,
+            attribution: 'S.O.S. Auto'
+          }).addTo(map);
+
+          // Marcador de posición actual en ruta
+          var marker = L.marker([6.2442, -75.5812]).addTo(map)
+            .bindPopup("<b>S.O.S. Auto</b><br />Ubicación activa en ruta.").openPopup();
+        </script>
+      </body>
+      </html>
+    ''';
+
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0xFFE5EFFA))
-      // Solución para el error ERR_CACHE_MISS habilitando el almacenamiento local y caché
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageFinished: (String url) {
@@ -31,31 +69,22 @@ class _MapScreenState extends State<MapScreen> {
               });
             }
           },
-          onWebResourceError: (WebResourceError error) {
-            debugPrint('Error en WebView: ${error.description}');
-          },
         ),
-      );
-
-    // Habilitar caché nativo en la plataforma Android/iOS de la WebView
-    _controller.clearCache();
-    _controller.loadRequest(Uri.parse(initialUrl));
+      )
+      ..loadHtmlString(htmlContent);
   }
 
-  void _switchMapEngine(String engine) {
+  void _switchMapStyle(String style) {
     setState(() {
-      _selectedEngine = engine;
+      _selectedEngine = style;
       _isLoading = true;
     });
 
-    String url = '';
-    if (engine == 'Waze (Interno)') {
-      url = 'https://embed.waze.com/iframe?zoom=15&lat=6.2442&lon=-75.5812&pin=1';
+    if (style.contains('Satélite')) {
+      _initMapHtml('satellite');
     } else {
-      url = 'https://maps.google.com/maps?q=6.2442,-75.5812&z=15&output=embed';
+      _initMapHtml('standard');
     }
-
-    _controller.loadRequest(Uri.parse(url));
   }
 
   @override
@@ -63,7 +92,7 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Visor web integrado
+          // Visor web con el mapa satelital incrustado
           Positioned.fill(
             child: WebViewWidget(controller: _controller),
           ),
@@ -79,7 +108,7 @@ class _MapScreenState extends State<MapScreen> {
                     CircularProgressIndicator(),
                     SizedBox(height: 12),
                     Text(
-                      'Cargando mapa en S.O.S. Auto...',
+                      'Cargando mapa satelital...',
                       style: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ],
@@ -87,7 +116,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
-          // Selector flotante para cambiar entre motores de mapa
+          // Selector flotante para cambiar entre Satélite y Estándar
           Positioned(
             top: 75,
             left: 16,
@@ -101,11 +130,11 @@ class _MapScreenState extends State<MapScreen> {
               child: DropdownButton<String>(
                 value: _selectedEngine,
                 underline: const SizedBox(),
-                icon: const Icon(Icons.map, size: 18, color: Colors.blueAccent),
+                icon: const Icon(Icons.satellite, size: 18, color: Colors.blueAccent),
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
                 items: [
-                  'Google Maps (Interno)',
-                  'Waze (Interno)'
+                  'Satélite (Esri)',
+                  'Estándar (OpenStreetMap)'
                 ].map((String map) {
                   return DropdownMenuItem<String>(
                     value: map,
@@ -114,19 +143,19 @@ class _MapScreenState extends State<MapScreen> {
                 }).toList(),
                 onChanged: (String? newMap) {
                   if (newMap != null) {
-                    _switchMapEngine(newMap);
+                    _switchMapStyle(newMap);
                   }
                 },
               ),
             ),
           ),
 
-          // Botón flotante para recargar
+          // Botón flotante para recargar vista
           Positioned(
             top: 75,
             right: 16,
             child: FloatingActionButton.small(
-              heroTag: 'reload_map',
+              heroTag: 'reload_sat',
               backgroundColor: Colors.white,
               child: const Icon(Icons.refresh, color: Colors.blueAccent),
               onPressed: () {
