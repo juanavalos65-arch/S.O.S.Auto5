@@ -1,6 +1,6 @@
 name: sos_auto5
 description: "S.O.S. Auto - Sistema de asistencia y tránsito activo"
-publish_to: 'none' # Evita la publicación accidental en pub.dev
+publish_to: 'none'
 
 version: 1.0.0+1
 
@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_map: ^6.1.0
-  latlong2: ^6.1.0
+  latlong2: ^0.9.1
   url_launcher: ^6.2.5
 
 dev_dependencies:
@@ -21,6 +21,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  # assets:
-  #   - assets/images/
