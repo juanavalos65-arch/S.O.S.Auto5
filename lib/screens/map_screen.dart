@@ -10,29 +10,30 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   late final WebViewController _controller;
-  String _selectedEngine = 'Google Maps';
+  String _selectedEngine = 'Google Maps (Interno)';
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _initWebViewController('https://www.google.com/maps/@6.2442,-75.5812,15z');
-  }
-
-  void _initWebViewController(String url) {
+    // URL de inserción directa para cargar Google Maps dentro de la WebView sin API Key
+    final String initialUrl = 'https://maps.google.com/maps?q=6.2442,-75.5812&z=15&output=embed';
+    
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0xFFE5EFFA))
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageFinished: (String url) {
-            setState(() {
-              _isLoading = false;
-            });
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+              });
+            }
           },
         ),
       )
-      ..loadRequest(Uri.parse(url));
+      ..loadRequest(Uri.parse(initialUrl));
   }
 
   void _switchMapEngine(String engine) {
@@ -41,13 +42,16 @@ class _MapScreenState extends State<MapScreen> {
       _isLoading = true;
     });
 
-    if (engine == 'Waze') {
-      // Cargador de Waze integrado en vista web
-      _controller.loadRequest(Uri.parse('https://www.waze.com/ul?ll=6.2442,-75.5812&navigate=yes'));
+    String url = '';
+    if (engine == 'Waze (Interno)') {
+      // Vista web interactiva de OpenStreetMap / Waze compatible con embed
+      url = 'https://www.openstreetmap.org/#map=15/6.2442/-75.5812';
     } else {
-      // Cargador de Google Maps integrado en vista web
-      _controller.loadRequest(Uri.parse('https://www.google.com/maps/@6.2442,-75.5812,15z'));
+      // Google Maps Embed nativo sin API Key
+      url = 'https://maps.google.com/maps?q=6.2442,-75.5812&z=15&output=embed';
     }
+
+    _controller.loadRequest(Uri.parse(url));
   }
 
   @override
@@ -55,18 +59,31 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Visor web integrado que muestra el mapa real dentro de la app
+          // Visor web integrado que renderiza el mapa real dentro de la app
           Positioned.fill(
             child: WebViewWidget(controller: _controller),
           ),
 
           // Indicador de carga mientras renderiza la cartografía
           if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
+            Container(
+              color: const Color(0xFFE5EFFA),
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 12),
+                    Text(
+                      'Cargando mapa en S.O.S. Auto...',
+                      style: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
             ),
 
-          // Selector flotante para cambiar entre Google Maps y Waze dentro de la app
+          // Selector flotante para cambiar entre motores de mapa dentro de la app
           Positioned(
             top: 75,
             left: 16,
@@ -82,7 +99,10 @@ class _MapScreenState extends State<MapScreen> {
                 underline: const SizedBox(),
                 icon: const Icon(Icons.map, size: 18, color: Colors.blueAccent),
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                items: ['Google Maps', 'Waze'].map((String map) {
+                items: [
+                  'Google Maps (Interno)',
+                  'Waze (Interno)'
+                ].map((String map) {
                   return DropdownMenuItem<String>(
                     value: map,
                     child: Text('Vista: $map'),
@@ -97,24 +117,20 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Controles flotantes superiores derechos (Recargar / Centrar)
+          // Botón flotante superior derecho para recargar o actualizar el mapa
           Positioned(
             top: 75,
             right: 16,
-            child: Column(
-              children: [
-                FloatingActionButton.small(
-                  heroTag: 'reload_btn',
-                  backgroundColor: Colors.white,
-                  child: const Icon(Icons.refresh, color: Colors.blueAccent),
-                  onPressed: () {
-                    _controller.reload();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Actualizando mapa...')),
-                    );
-                  },
-                ),
-              ],
+            child: FloatingActionButton.small(
+              heroTag: 'reload_map',
+              backgroundColor: Colors.white,
+              child: const Icon(Icons.refresh, color: Colors.blueAccent),
+              onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                });
+                _controller.reload();
+              },
             ),
           ),
         ],
