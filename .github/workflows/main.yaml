@@ -37,12 +37,10 @@ jobs:
         run: flutter test
 
       - name: Build Android APK (Release)
-        run: |
-          cd android
-          ./gradlew assembleRelease
+        run: flutter build apk --release
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
