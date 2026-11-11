@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'screens/supabase_service.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Inicialización corregida con publishableKey
+  // Inicialización de Supabase con la clave pública actual
   await Supabase.initialize(
     url: 'https://TU-PROYECTO.supabase.co',
     publishableKey: 'TU_PUBLISHABLE_KEY',
