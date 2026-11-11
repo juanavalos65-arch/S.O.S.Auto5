@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/mapbox_gl.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
-class SOSMapWidget extends StatefulWidget {
-  @override
-  _SOSMapWidgetState createState() => _SOSMapWidgetState();
-}
-
-class _SOSMapWidgetState extends State<SOSMapWidget> {
-  MaplibreMapController? mapController;
-
-  void _onMapCreated(MaplibreMapController controller) {
-    mapController = controller;
-  }
+class SOSMapWidget extends StatelessWidget {
+  const SOSMapWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaplibreMap(
-      onMapCreated: _onMapCreated,
-      initialCameraPosition: const CameraPosition(
-        target: LatLng(6.2442, -75.5812), // Coordenadas base (ej. Medellín)
-        zoom: 14.0,
+    return FlutterMap(
+      options: MapOptions(
+        initialCenter: const LatLng(6.2442, -75.5812), // Medellín
+        initialZoom: 14.0,
       ),
-      styleString: "https://demotiles.maplibre.org/style.json", // O servidor OSM vectorial
-      myLocationEnabled: true,
-      myLocationTrackingMode: MyLocationTrackingMode.Tracking,
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'ge.sosauto.app',
+        ),
+      ],
     );
   }
 }
