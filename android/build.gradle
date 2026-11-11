@@ -4,7 +4,6 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        // Plugin de Android Gradle compatible con Gradle 8.x
         classpath 'com.android.tools.build:gradle:7.4.2'
     }
 }
