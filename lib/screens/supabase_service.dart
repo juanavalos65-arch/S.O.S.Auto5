@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SupabaseService {
   static final SupabaseClient client = Supabase.instance.client;
 
-  // Inicialización de cliente Supabase
+  // Inicialización de cliente Supabase utilizando 'url' y 'publishableKey' (recomendado)
   static Future<void> init() async {
     await Supabase.initialize(
       url: 'https://TU-PROYECTO.supabase.co',
@@ -13,10 +13,14 @@ class SupabaseService {
 
   // Consulta de alertas de emergencia y aliados cercanos
   static Future<List>> getActiveAlerts() async {
-    final response = await client
-        .from('emergencias')
-        .select()
-        .eq('activa', true);
-    return List>.from(response);
+    try {
+      final response = await client
+          .from('emergencias')
+          .select()
+          .eq('activa', true);
+      return List>.from(response);
+    } catch (e) {
+      return [];
+    }
   }
 }
