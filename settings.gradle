@@ -2,8 +2,14 @@ pluginManagement {
     def flutterSdkPath = ((FindProperty('flutter.sdk'))?.toString())
     if (flutterSdkPath == null) {
         Properties properties = new Properties()
-        properties.load(new File("local.properties").newDataInputStream())
-        flutterSdkPath = properties.getProperty("flutter.sdk")
+        File flutterSettingsFile = new File("local.properties")
+        if (flutterSettingsFile.exists()) {
+            properties.load(flutterSettingsFile.newDataInputStream())
+            flutterSdkPath = properties.getProperty("flutter.sdk")
+        }
+    }
+    if (flutterSdkPath == null) {
+        flutterSdkPath = System.getenv("FLUTTER_ROOT")
     }
     repositories {
         google()
