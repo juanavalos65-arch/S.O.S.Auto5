@@ -1,24 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'services/supabase_service.dart';
-import 'services/fcm_service.dart';
-import 'widgets/sos_map_view.dart';
+import 'screens/supabase_service.dart';
+import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Inicializar Firebase
-  await Firebase.initializeApp();
-  
-  // Inicializar Supabase con tus credenciales
+  // Inicialización corregida con publishableKey
   await Supabase.initialize(
     url: 'https://TU-PROYECTO.supabase.co',
-    anonKey: 'TU_ANON_KEY',
+    publishableKey: 'TU_PUBLISHABLE_KEY',
   );
-
-  // Inicializar notificaciones push
-  await FCMService().initializeFCM();
 
   runApp(const SOSAutoApp());
 }
@@ -30,9 +22,11 @@ class SOSAutoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'S.O.S. Auto',
-      theme: ThemeData(primarySwatch: Colors.red),
-      home: const HomeScreen(),
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomeScreen(),
     );
   }
 }
