@@ -9,7 +9,7 @@ class SupabaseService {
           .from('emergencias')
           .select()
           .eq('activa', true);
-      return List>.from(response);
+      return List.from(response);
     } catch (e) {
       return [];
     }
