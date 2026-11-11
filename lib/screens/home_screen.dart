@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -6,36 +10,39 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. Mapa Base con OpenStreetMap + MapLibre
-          const SOSMapWidget(),
+          // Visor de Mapa OpenStreetMap
+          FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(6.2442, -75.5812), // Medellín
+              initialZoom: 14.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'ge.sosauto.app',
+              ),
+            ],
+          ),
 
-          // 2. Cabecera y Banner Dinámico Superior
+          // Cabecera y Banner Dinámico
           Positioned(
             top: 40,
             left: 16,
             right: 16,
-            child: Column(
-              children: [
-                // Logotipo Oficial
-                Image.asset('assets/images/logo_sos_auto.png', height: 40),
-                const SizedBox(height: 8),
-                // Banner Intercalado (Pauta / Vehículos Robados / Novedades)
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.black87,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    "⚠️ Alerta vial en vía principal: Precaución por carril reducido",
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ],
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                "⚠️ S.O.S. Auto - Red Vial Activa",
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
             ),
           ),
 
-          // 3. Botones Flotantes sobre el Mapa (Acceso Rápido)
+          // Botones Flotantes Inferiores
           Positioned(
             bottom: 20,
             left: 16,
@@ -47,27 +54,21 @@ class HomeScreen extends StatelessWidget {
                   ActionChip(
                     label: const Text("Me Varé"),
                     backgroundColor: Colors.yellow[700],
-                    onPressed: () {
-                      // Lógica de asistencia directa sin intermediarios
-                    },
+                    onPressed: () {},
                   ),
                   const SizedBox(width: 8),
                   ActionChip(
                     label: const Text("Me Accidenté"),
                     backgroundColor: Colors.red,
                     labelStyle: const TextStyle(color: Colors.white),
-                    onPressed: () {
-                      // Activar cuenta regresiva de 5 segundos con PIN/biometría
-                    },
+                    onPressed: () {},
                   ),
                   const SizedBox(width: 8),
                   ActionChip(
                     label: const Text("Paute Aquí"),
                     backgroundColor: Colors.blue,
                     labelStyle: const TextStyle(color: Colors.white),
-                    onPressed: () {
-                      // Abrir pasarela Wompi o planes publicitarios
-                    },
+                    onPressed: () {},
                   ),
                 ],
               ),
