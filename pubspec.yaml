@@ -1,23 +1,45 @@
-name: sos_auto5
-description: "S.O.S. Auto - Sistema de asistencia y tránsito activo"
-publish_to: 'none'
+workflows:
+  android-workflow:
+    name: Build S.O.S. Auto (Android APK & Bundle)
+    max_build_duration: 30
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      java: 17
+      groups:
+        - google_play_credentials # Grupo de variables de entorno configurado en Codemagic
+      vars:
+        PACKAGE_NAME: "ge.sosauto.app"
+        NOTIFICATION_EMAIL: "soporte.applay65@gmail.com"
+    scripts:
+      - name: Obtener dependencias de Flutter
+        script: |
+          flutter packages pub get
 
-version: 1.0.0+1
+      - name: Verificar análisis estático y formateo
+        script: |
+          flutter analyze
+          
+      - name: Ejecutar pruebas unitarias
+        script: |
+          flutter test
 
-environment:
-  sdk: '>=3.0.0 <4.0.0'
+      - name: Construir APK de prueba (Release)
+        script: |
+          flutter build apk --release --build-name=1.0.0 --build-number=$BUILD_NUMBER
 
-dependencies:
-  flutter:
-    sdk: flutter
-  flutter_map: ^6.1.0
-  latlong2: ^0.9.1
-  url_launcher: ^6.2.5
+      - name: Construir Android App Bundle (AAB) para Google Play
+        script: |
+          flutter build appbundle --release --build-name=1.0.0 --build-number=$BUILD_NUMBER
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+      - build/app/outputs/bundle/release/*.aab
 
-flutter:
-  uses-material-design: true
+    publishing:
+      email:
+        recipients:
+          - soporte.applay65@gmail.com
+        notify:
+          success: true
+          failure: true
