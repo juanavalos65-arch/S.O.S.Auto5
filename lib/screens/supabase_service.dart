@@ -6,7 +6,7 @@ class SupabaseService {
   static Future<void> initializeApp() async {
     await Supabase.initialize(
       url: 'https://TU-PROYECTO.supabase.co',
-      anonKey: 'TU_ANON_KEY',
+      publishableKey: 'TU_PUBLISHABLE_KEY', // Actualizado según la nueva API
     );
   }
 
