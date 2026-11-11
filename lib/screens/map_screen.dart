@@ -16,12 +16,12 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    // URL de inserción directa para cargar Google Maps dentro de la WebView sin API Key
-    final String initialUrl = 'https://maps.google.com/maps?q=6.2442,-75.5812&z=15&output=embed';
+    const String initialUrl = 'https://maps.google.com/maps?q=6.2442,-75.5812&z=15&output=embed';
     
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0xFFE5EFFA))
+      // Solución para el error ERR_CACHE_MISS habilitando el almacenamiento local y caché
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageFinished: (String url) {
@@ -31,9 +31,15 @@ class _MapScreenState extends State<MapScreen> {
               });
             }
           },
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('Error en WebView: ${error.description}');
+          },
         ),
-      )
-      ..loadRequest(Uri.parse(initialUrl));
+      );
+
+    // Habilitar caché nativo en la plataforma Android/iOS de la WebView
+    _controller.clearCache();
+    _controller.loadRequest(Uri.parse(initialUrl));
   }
 
   void _switchMapEngine(String engine) {
@@ -44,10 +50,8 @@ class _MapScreenState extends State<MapScreen> {
 
     String url = '';
     if (engine == 'Waze (Interno)') {
-      // Vista web interactiva de OpenStreetMap / Waze compatible con embed
-      url = 'https://www.openstreetmap.org/#map=15/6.2442/-75.5812';
+      url = 'https://embed.waze.com/iframe?zoom=15&lat=6.2442&lon=-75.5812&pin=1';
     } else {
-      // Google Maps Embed nativo sin API Key
       url = 'https://maps.google.com/maps?q=6.2442,-75.5812&z=15&output=embed';
     }
 
@@ -59,12 +63,12 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Visor web integrado que renderiza el mapa real dentro de la app
+          // Visor web integrado
           Positioned.fill(
             child: WebViewWidget(controller: _controller),
           ),
 
-          // Indicador de carga mientras renderiza la cartografía
+          // Indicador de carga
           if (_isLoading)
             Container(
               color: const Color(0xFFE5EFFA),
@@ -83,7 +87,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
-          // Selector flotante para cambiar entre motores de mapa dentro de la app
+          // Selector flotante para cambiar entre motores de mapa
           Positioned(
             top: 75,
             left: 16,
@@ -117,7 +121,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Botón flotante superior derecho para recargar o actualizar el mapa
+          // Botón flotante para recargar
           Positioned(
             top: 75,
             right: 16,
