@@ -2,9 +2,9 @@ name: Build S.O.S. Auto Suite
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
   build:
@@ -23,36 +23,24 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'
+          flutter-version: '3.19.6' # Versión estable de Flutter compatible con Dart ^3.3.0
           channel: 'stable'
           cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Clean old Android files and regenerate clean platform
-        run: |
-          rm -rf android
-          flutter create . --platforms=android,web --project-name=sos_auto
+      - name: Verify static code analysis
+        run: flutter analyze
 
-      - name: Fix Kotlin Version in settings.gradle
-        run: |
-          sed -i 's/version "1.7.10"/version "1.9.20"/g' android/settings.gradle || true
-          sed -i 's/version "1.7.0"/version "1.9.20"/g' android/settings.gradle || true
-          sed -i 's/version "1.8.0"/version "1.9.20"/g' android/settings.gradle || true
-          sed -i 's/version "1.8.22"/version "1.9.20"/g' android/settings.gradle || true
+      - name: Run unit tests
+        run: flutter test --no-pub
 
-      - name: Build APK, App Bundle and Web
-        run: |
-          flutter build apk --release
-          flutter build appbundle --release
-          flutter build web --release
+      - name: Build Android APK (Release)
+        run: flutter build apk --release
 
-      - name: Upload All Artifacts
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sos-auto-release-bundles
-          path: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
-            build/web/
+          name: sos-auto-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
