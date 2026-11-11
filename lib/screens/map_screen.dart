@@ -20,20 +20,16 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _initMapHtml(String type) {
-    // Definimos las URLs de los proveedores de mapas gratuitos (Satélite vs Estándar)
     final String tileUrl = type == 'satellite'
-        // Mosaicos satelitales gratuitos de alta resolución (Esri World Imagery)
         ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-        // Mosaicos estándar gratuitos (OpenStreetMap)
         : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-    // HTML interactivo con Leaflet.js incrustado en la WebView para control total sin API Key
     final String htmlContent = '''
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <style>
@@ -43,15 +39,14 @@ class _MapScreenState extends State<MapScreen> {
       <body>
         <div id="map"></div>
         <script>
-          var map = L.map('map', {zoomControl: false}).setView([6.2442, -75.5812], 15);
+          var map = L.map('map', {zoomControl: false, attributionControl: false}).setView([6.2442, -75.5812], 15);
           L.tileLayer('$tileUrl', {
             maxZoom: 19,
-            attribution: 'S.O.S. Auto'
+            subdomains: ['a', 'b', 'c']
           }).addTo(map);
 
-          // Marcador de posición actual en ruta
-          var marker = L.marker([6.2442, -75.5812]).addTo(map)
-            .bindPopup("<b>S.O.S. Auto</b><br />Ubicación activa en ruta.").openPopup();
+          L.marker([6.2442, -75.5812]).addTo(map)
+            .bindPopup("<b>S.O.S. Auto</b><br />Ubicación activa.").openPopup();
         </script>
       </body>
       </html>
@@ -92,12 +87,9 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Visor web con el mapa satelital incrustado
           Positioned.fill(
             child: WebViewWidget(controller: _controller),
           ),
-
-          // Indicador de carga
           if (_isLoading)
             Container(
               color: const Color(0xFFE5EFFA),
@@ -108,15 +100,13 @@ class _MapScreenState extends State<MapScreen> {
                     CircularProgressIndicator(),
                     SizedBox(height: 12),
                     Text(
-                      'Cargando mapa satelital...',
+                      'Cargando cartografía...',
                       style: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ],
                 ),
               ),
             ),
-
-          // Selector flotante para cambiar entre Satélite y Estándar
           Positioned(
             top: 75,
             left: 16,
@@ -149,8 +139,6 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
           ),
-
-          // Botón flotante para recargar vista
           Positioned(
             top: 75,
             right: 16,
