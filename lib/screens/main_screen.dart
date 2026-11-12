@@ -6,15 +6,15 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List. botonesEmergencia = [
+    final List> botonesEmergencia = [
       {'titulo': 'Regístrese', 'icono': Icons.person_add, 'color': Colors.indigo},
       {'titulo': 'Paute Aquí', 'icono': Icons.campaign, 'color': Colors.purple},
-      {'titulo': 'Me Varé', 'icono': Icons.car_repair, 'color': Colors.amber.shade800},
+      {'titulo': 'Me Varé', 'icono': Icons.car_repair, 'color': Colors.amber},
       {'titulo': 'Me Accidenté', 'icono': Icons.car_crash, 'color': Colors.red},
       {'titulo': 'En Peligro', 'icono': Icons.security, 'color': Colors.deepOrange},
       {'titulo': 'Tránsito', 'icono': Icons.local_police, 'color': Colors.blueGrey},
       {'titulo': 'Robo Auto', 'icono': Icons.search, 'color': Colors.deepPurple},
-      {'titulo': 'Novedades', 'icono': Icons.warning, 'color': Colors.orange.shade800},
+      {'titulo': 'Novedades', 'icono': Icons.warning, 'color': Colors.orange},
     ];
 
     return Scaffold(
@@ -79,13 +79,13 @@ class MainScreen extends StatelessWidget {
             // 3. SECCIÓN INFERIOR: 8 BOTONES ALINEADOS
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 8,
-                    offset: const Offset(0, -3),
+                    offset: Offset(0, -3),
                   ),
                 ],
               ),
@@ -103,11 +103,11 @@ class MainScreen extends StatelessWidget {
                   final boton = botonesEmergencia[index];
                   return InkWell(
                     onTap: () {},
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                     child: Container(
                       decoration: BoxDecoration(
                         color: boton['color'] as Color,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
