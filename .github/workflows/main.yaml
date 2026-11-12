@@ -33,6 +33,14 @@ jobs:
           rm -rf android
           flutter create . --platforms=android --org com.sosauto --project-name sos_auto5
 
+      - name: Update minSdk for Firebase
+        run: |
+          BUILD_FILE="android/app/build.gradle"
+          if [ -f "$BUILD_FILE" ]; then
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 24/g' "$BUILD_FILE"
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 24/g' "$BUILD_FILE"
+          fi
+
       - name: Install dependencies
         run: flutter pub get
 
