@@ -21,7 +21,9 @@ class MainScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // 1. CABECERA: LOGO, SLOGAN Y BANNER DINÁMICO
+            // ==========================================
+            // 1. CABECERA: LOGOTIPO OFICIAL, SLOGAN Y BANNER
+            // ==========================================
             Container(
               padding: const EdgeInsets.only(top: 8, bottom: 4),
               color: Colors.white,
@@ -32,8 +34,8 @@ class MainScreen extends StatelessWidget {
                     children: [
                       Image.asset(
                         'assets/icon/icon_sos.png',
-                        height: 32,
-                        width: 32,
+                        height: 38,
+                        fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) =>
                             const Icon(Icons.shield_rounded, color: Colors.red, size: 32),
                       ),
@@ -63,20 +65,25 @@ class MainScreen extends StatelessWidget {
               ),
             ),
 
-            // 2. MAPA CENTRAL (Sin interferencia de botones)
+            // ==========================================
+            // 2. MAPA CENTRAL (Expandido y libre de botones)
+            // ==========================================
             Expanded(
               child: Container(
                 color: Colors.green.shade50,
                 child: const Center(
                   child: Text(
-                    'Mapa Interactivo S.O.S. Auto',
+                    'Mapa Interactivo S.O.S. Auto\n(Posición real y calles)',
+                    textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
             ),
 
-            // 3. SECCIÓN INFERIOR: 8 BOTONES ALINEADOS
+            // ==========================================
+            // 3. SECCIÓN INFERIOR: LOS 8 BOTONES ALINEADOS
+            // ==========================================
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: const BoxDecoration(
@@ -106,18 +113,18 @@ class MainScreen extends StatelessWidget {
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: boton['color'] as Color,
+                        color: boton['color'],
                         borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(boton['icono'] as IconData, color: Colors.white, size: 22),
+                          Icon(boton['icono'], color: Colors.white, size: 22),
                           const SizedBox(height: 4),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 2),
                             child: Text(
-                              boton['titulo'] as String,
+                              boton['titulo'],
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.white,
