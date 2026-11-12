@@ -1,149 +1,41 @@
 import 'package:flutter/material.dart';
-import 'banner_dinamico.dart';
+import 'bottom_action_grid.dart'; // Importa la grilla de los 8 botones fijos
+import 'banner_dinamico.dart';   // Importa tu banner dinámico rotativo
+import 'map_screen.dart';        // Importa tu mapa interactivo
 
 class MainScreen extends StatelessWidget {
-  const MainScreen({super.key});
+  const MainScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final List botonesEmergencia = [
-      {'titulo': 'Regístrese', 'icono': Icons.person_add, 'color': Colors.indigo},
-      {'titulo': 'Paute Aquí', 'icono': Icons.campaign, 'color': Colors.purple},
-      {'titulo': 'Me Varé', 'icono': Icons.car_repair, 'color': Colors.amber},
-      {'titulo': 'Me Accidenté', 'icono': Icons.car_crash, 'color': Colors.red},
-      {'titulo': 'En Peligro', 'icono': Icons.security, 'color': Colors.deepOrange},
-      {'titulo': 'Tránsito', 'icono': Icons.local_police, 'color': Colors.blueGrey},
-      {'titulo': 'Robo Auto', 'icono': Icons.search, 'color': Colors.deepPurple},
-      {'titulo': 'Novedades', 'icono': Icons.warning, 'color': Colors.orange},
-    ];
-
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // ==========================================
-            // 1. CABECERA: LOGOTIPO OFICIAL, SLOGAN Y BANNER
-            // ==========================================
-            Container(
-              padding: const EdgeInsets.only(top: 8, bottom: 4),
-              color: Colors.white,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/icon/icon_sos.png',
-                        height: 38,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.shield_rounded, color: Colors.red, size: 32),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'S.O.S. Auto',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'Red Vial Activa',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                  const BannerDinamico(),
-                ],
-              ),
-            ),
+      body: Stack(
+        children: [
+          // 1. Capa Base: El Mapa Interactivo (ocupa toda la pantalla)
+          const Positioned.fill(
+            child: MapScreenWidget(), // Asegúrate de que el widget principal en map_screen.dart se llame así (o cámbialo según corresponda)
+          ),
 
-            // ==========================================
-            // 2. MAPA CENTRAL (Expandido y libre de botones)
-            // ==========================================
-            Expanded(
-              child: Container(
-                color: Colors.green.shade50,
-                child: const Center(
-                  child: Text(
-                    'Mapa Interactivo S.O.S. Auto\n(Posición real y calles)',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ),
+          // 2. Capa Superior: Banner Dinámico / Alertas en la vía
+          const Positioned(
+            top: 40,
+            left: 16,
+            right: 16,
+            child: Column(
+              children: [
+                BannerDinamico(),
+              ],
             ),
+          ),
 
-            // ==========================================
-            // 3. SECCIÓN INFERIOR: LOS 8 BOTONES ALINEADOS
-            // ==========================================
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, -3),
-                  ),
-                ],
-              ),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: botonesEmergencia.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 6,
-                  mainAxisSpacing: 6,
-                  childAspectRatio: 1.1,
-                ),
-                itemBuilder: (context, index) {
-                  final boton = botonesEmergencia[index];
-                  return InkWell(
-                    onTap: () {},
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: boton['color'],
-                        borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(boton['icono'], color: Colors.white, size: 22),
-                          const SizedBox(height: 4),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2),
-                            child: Text(
-                              boton['titulo'],
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          // 3. Capa Inferior: Los 8 botones fijos y visibles a primera vista sin scroll
+          const Positioned(
+            bottom: 20,
+            left: 16,
+            right: 16,
+            child: BottomActionGrid(),
+          ),
+        ],
       ),
     );
   }
