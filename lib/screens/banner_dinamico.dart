@@ -9,19 +9,19 @@ class BannerDinamico extends StatefulWidget {
 }
 
 class _BannerDinamicoState extends State<BannerDinamico> {
-  final List> _mensajes = [
+  final List _mensajes = [
     {
       'texto': '🏢 Pauta Aquí: Anuncie su taller o grúa - Wompi',
       'color': Colors.amber,
       'icono': Icons.business,
     },
     {
-      'texto': '🚨 Alerta Robo: Vehículo reportado en red (Ver detalles)',
+      'texto': '🚨 Alerta Robo: Vehículo reportado en red',
       'color': Colors.red,
       'icono': Icons.warning_amber_rounded,
     },
     {
-      'texto': '⚠️ Novedad en Vía: Cierre parcial por mantenimiento',
+      'texto': '⚠️ Novedad en Vía: Cierre parcial',
       'color': Colors.blue,
       'icono': Icons.traffic,
     },
@@ -54,15 +54,12 @@ class _BannerDinamicoState extends State<BannerDinamico> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 600),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(opacity: animation, child: child);
-      },
       child: Container(
-        key: ValueKey<int>(_currentIndex),
+        key: ValueKey(_currentIndex),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: mensajeActual['color'] as Color,
+          color: mensajeActual['color'],
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
@@ -75,14 +72,14 @@ class _BannerDinamicoState extends State<BannerDinamico> {
         child: Row(
           children: [
             Icon(
-              mensajeActual['icono'] as IconData,
+              mensajeActual['icono'],
               color: Colors.white,
               size: 22,
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                mensajeActual['texto'] as String,
+                mensajeActual['texto'],
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
