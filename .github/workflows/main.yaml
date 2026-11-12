@@ -1,10 +1,10 @@
-name: Build Android APK
+name: Build S.O.S. Auto Suite
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -18,17 +18,20 @@ jobs:
       - name: Set up Java JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.19.6'
           channel: 'stable'
           cache: true
 
-      - name: Regenerate Android Gradle files
-        run: flutter create --platforms=android .
+      - name: Clean and Regenerate Android folder
+        run: |
+          rm -rf android
+          flutter create . --platforms=android --org com.sosauto --project-name sos_auto5
 
       - name: Install dependencies
         run: flutter pub get
