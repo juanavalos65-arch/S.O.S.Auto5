@@ -1,7 +1,6 @@
-name: sos_auto5
-description: "Aplicación móvil de asistencia vial, seguridad y navegación comunitaria S.O.S. Auto."
+name: sos_auto
+description: "Sistema de asistencia y tránsito activo - S.O.S. Auto"
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -10,41 +9,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # Mapas y Geolocalización
-  google_maps_flutter: ^2.5.0
   flutter_map: ^6.1.0
-  latlong2: ^0.9.1
-  geolocator: ^10.1.0
-
-  # Firebase y Notificaciones Push (Añadido para fcm_service.dart)
-  firebase_core: ^2.24.2
-  firebase_messaging: ^14.7.10
-
-  # Base de datos y Backend
-  supabase_flutter: ^2.0.0
-
-  # Seguridad, Biometría y Cifrado
-  local_auth: ^2.1.7
-  flutter_secure_storage: ^9.0.0
-  crypto: ^3.0.3
-
-  # Conectividad, API y Pasarela Wompi
-  http: ^1.1.0
-  url_launcher: ^6.2.1
-  shared_preferences: ^2.2.2
-
-  # Interfaz e Iconos
+  latlong2: ^0.9.0
   cupertino_icons: ^1.0.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
+  
+  # Si tienes tu logotipo guardado en una carpeta assets, descomenta estas líneas:
+  # assets:
+  #   - assets/images/
 
-  # Recursos gráficos y logotipo oficial de S.O.S. Auto
-  assets:
-    - assets/icon/icon_sos.png
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png" # Ruta de tu logotipo oficial para quitar el de Flutter
