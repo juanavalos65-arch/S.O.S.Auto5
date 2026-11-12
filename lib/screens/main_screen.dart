@@ -6,7 +6,7 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List> botonesEmergencia = [
+    final List botonesEmergencia = [
       {'titulo': 'Regístrese', 'icono': Icons.person_add, 'color': Colors.indigo},
       {'titulo': 'Paute Aquí', 'icono': Icons.campaign, 'color': Colors.purple},
       {'titulo': 'Me Varé', 'icono': Icons.car_repair, 'color': Colors.amber.shade800},
