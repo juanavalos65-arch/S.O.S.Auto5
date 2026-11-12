@@ -12,17 +12,17 @@ class _BannerDinamicoState extends State<BannerDinamico> {
   final List> _mensajes = [
     {
       'texto': '🏢 Pauta Aquí: Anuncie su taller o grúa - Wompi',
-      'color': Colors.amber.shade800,
+      'color': Colors.amber,
       'icono': Icons.business,
     },
     {
       'texto': '🚨 Alerta Robo: Vehículo reportado en red (Ver detalles)',
-      'color': Colors.red.shade700,
+      'color': Colors.red,
       'icono': Icons.warning_amber_rounded,
     },
     {
       'texto': '⚠️ Novedad en Vía: Cierre parcial por mantenimiento',
-      'color': Colors.blue.shade800,
+      'color': Colors.blue,
       'icono': Icons.traffic,
     },
   ];
@@ -64,11 +64,11 @@ class _BannerDinamicoState extends State<BannerDinamico> {
         decoration: BoxDecoration(
           color: mensajeActual['color'] as Color,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: Colors.black12,
               blurRadius: 6,
-              offset: const Offset(0, 3),
+              offset: Offset(0, 3),
             ),
           ],
         ),
