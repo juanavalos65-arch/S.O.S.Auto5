@@ -11,10 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Mapas y Geolocalización (Versión corregida para evitar fallo de compilación)
+  # Mapas y Geolocalización (Versión compatible corregida)
   google_maps_flutter: ^2.5.0
   geolocator: ^10.1.0
   latlong2: ^0.9.1
+
+  # Base de datos y Backend (Añadido para resolver el error de importación)
+  supabase_flutter: ^2.0.0
 
   # Seguridad, Biometría y Cifrado
   local_auth: ^2.1.7
