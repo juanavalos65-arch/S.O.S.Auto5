@@ -1,24 +1,29 @@
 name: sos_auto5
-description: "Aplicación multi-usuario de asistencia en carretera y navegación S.O.S. Auto."
-publish_to: "none"
+description: "Aplicación móvil S.O.S. Auto - Red Vial Activa"
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_map: ^6.1.0
-  latlong2: ^0.9.0
-  supabase_flutter: ^2.6.0
-  firebase_core: ^3.4.0
-  firebase_messaging: ^15.1.0
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^2.0.0
+  flutter_launcher_icons: "^0.13.1"
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon_sos.png"
+  min_sdk_android: 21
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/
