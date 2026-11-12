@@ -1,11 +1,10 @@
-name: Build Android APK
+name: Build S.O.S. Auto Suite
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ main, master ]
 
 jobs:
   build:
@@ -18,7 +17,7 @@ jobs:
       - name: Set up Java JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
       - name: Set up Flutter
@@ -30,6 +29,11 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Regenerate Android folder
+        run: |
+          rm -rf android
+          flutter create . --platforms=android --org com.example --project-name voiceflow_app
 
       - name: Verify static code analysis
         run: flutter analyze
@@ -43,5 +47,5 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sos-auto-release-apk
+          name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
