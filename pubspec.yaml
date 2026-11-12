@@ -11,11 +11,15 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Mapas y Geolocalización (Incluyendo flutter_map y latlong2)
+  # Mapas y Geolocalización
   google_maps_flutter: ^2.5.0
   flutter_map: ^6.1.0
   latlong2: ^0.9.1
   geolocator: ^10.1.0
+
+  # Firebase y Notificaciones Push (Añadido para fcm_service.dart)
+  firebase_core: ^2.24.2
+  firebase_messaging: ^14.7.10
 
   # Base de datos y Backend
   supabase_flutter: ^2.0.0
