@@ -3,10 +3,10 @@ import 'banner_dinamico.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
-
-  @override
+    @override
   Widget build(BuildContext context) {
     final List> botonesEmergencia = [
+
       {'titulo': 'Regístrese', 'icono': Icons.person_add, 'color': Colors.indigo},
       {'titulo': 'Paute Aquí', 'icono': Icons.campaign, 'color': Colors.purple},
       {'titulo': 'Me Varé', 'icono': Icons.car_repair, 'color': Colors.amber},
