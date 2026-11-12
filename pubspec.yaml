@@ -1,6 +1,7 @@
 name: sos_auto5
-description: "Aplicación móvil S.O.S. Auto - Red Vial Activa"
+description: "Aplicación móvil de asistencia vial, seguridad y navegación comunitaria S.O.S. Auto."
 publish_to: 'none'
+
 version: 1.0.0+1
 
 environment:
@@ -9,24 +10,33 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  flutter_map: ^6.0.0
-  latlong2: ^6.1.0
-  supabase_flutter: ^2.0.0
+
+  # Mapas y Geolocalización (Versión corregida para evitar fallo de compilación)
+  google_maps_flutter: ^2.5.0
+  geolocator: ^10.1.0
+  latlong2: ^0.9.1
+
+  # Seguridad, Biometría y Cifrado
+  local_auth: ^2.1.7
+  flutter_secure_storage: ^9.0.0
+  crypto: ^3.0.3
+
+  # Conectividad, API y Pasarela Wompi
+  http: ^1.1.0
+  url_launcher: ^6.2.1
+  shared_preferences: ^2.2.2
+
+  # Interfaz e Iconos
+  cupertino_icons: ^1.0.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
-  flutter_launcher_icons: "^0.13.1"
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/icon/icon_sos.png"
-  min_sdk_android: 21
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+
+  # Recursos gráficos y logotipo oficial de S.O.S. Auto
   assets:
-    - assets/icon/
+    - assets/icon/icon_sos.png
