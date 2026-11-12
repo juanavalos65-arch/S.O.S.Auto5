@@ -104,7 +104,7 @@ class _SosAutoMapScreenState extends State<SosAutoMapScreen> {
             ),
           ),
 
-          // 4. BOTONES FLOTANTES PERMANENTES SOBRE EL MAPA
+          // 4. LOS 8 BOTONES FLOTANTES PERMANENTES SOBRE EL MAPA
           Positioned(
             right: 16,
             bottom: 30,
@@ -179,7 +179,7 @@ class _SosAutoMapScreenState extends State<SosAutoMapScreen> {
     required Color color,
     required String label,
     required VoidCallback onTap,
-  } ) {
+  }) {
     return FloatingActionButton.small(
       heroTag: label,
       backgroundColor: color,
