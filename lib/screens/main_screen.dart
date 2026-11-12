@@ -3,10 +3,10 @@ import 'banner_dinamico.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
-    @override
-  Widget build(BuildContext context) {
-    final List> botonesEmergencia = [
 
+  @override
+  Widget build(BuildContext context) {
+    final List botonesEmergencia = [
       {'titulo': 'Regístrese', 'icono': Icons.person_add, 'color': Colors.indigo},
       {'titulo': 'Paute Aquí', 'icono': Icons.campaign, 'color': Colors.purple},
       {'titulo': 'Me Varé', 'icono': Icons.car_repair, 'color': Colors.amber},
@@ -103,7 +103,7 @@ class MainScreen extends StatelessWidget {
                   final boton = botonesEmergencia[index];
                   return InkWell(
                     onTap: () {},
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                     child: Container(
                       decoration: BoxDecoration(
                         color: boton['color'] as Color,
