@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-// Importa aquí tu banner dinámico que acabas de crear en la carpeta screen:
-// import 'banner_dinamico.dart';
+import 'banner_dinamico.dart';
 
 class MainScreen extends StatelessWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Definición de los 8 botones oficiales de S.O.S. Auto
     final List> botonesEmergencia = [
       {'titulo': 'Regístrese', 'icono': Icons.person_add, 'color': Colors.indigo},
       {'titulo': 'Paute Aquí', 'icono': Icons.campaign, 'color': Colors.purple},
@@ -23,24 +21,21 @@ class MainScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // ==========================================
-            // 1. CABECERA: LOGOTIPO, SLOGAN Y BANNER
-            // ==========================================
+            // 1. CABECERA: LOGO, SLOGAN Y BANNER DINÁMICO
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.only(top: 8, bottom: 4),
               color: Colors.white,
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logotipo oficial (Asegúrate de tener tu asset configurado)
                       Image.asset(
-                        'assets/icon/icon_sos.png', 
-                        height: 32, 
+                        'assets/icon/icon_sos.png',
+                        height: 32,
                         width: 32,
-                        errorBuilder: (context, error, stackTrace) => 
-                          const Icon(Icons.shield_rounded, color: Colors.red, size: 32),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.shield_rounded, color: Colors.red, size: 32),
                       ),
                       const SizedBox(width: 8),
                       const Text(
@@ -63,44 +58,32 @@ class MainScreen extends StatelessWidget {
                       letterSpacing: 1.1,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  // Aquí colocas tu Banner Dinámico en movimiento
-                  // const BannerDinamico(),
+                  const BannerDinamico(),
                 ],
               ),
             ),
 
-            // ==========================================
-            // 2. MAPA CENTRAL (Expandido sin interferencia)
-            // ==========================================
+            // 2. MAPA CENTRAL (Sin interferencia de botones)
             Expanded(
-              child: Stack(
-                children: [
-                  // Aquí va tu widget de Mapa actual de América / Ubicación
-                  Container(
-                    color: Colors.green.shade50, // Color base de prueba del mapa
-                    child: const Center(
-                      child: Text(
-                        'Mapa Interactivo\n(Posición real y calles en desarrollo)',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w500),
-                      ),
-                    ),
+              child: Container(
+                color: Colors.green.shade50,
+                child: const Center(
+                  child: Text(
+                    'Mapa Interactivo S.O.S. Auto',
+                    style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w500),
                   ),
-                ],
+                ),
               ),
             ),
 
-            // ==========================================
-            // 3. SECCIÓN INFERIOR: LOS 8 BOTONES OFICIALES
-            // ==========================================
+            // 3. SECCIÓN INFERIOR: 8 BOTONES ALINEADOS
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, -3),
                   ),
@@ -111,7 +94,7 @@ class MainScreen extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: botonesEmergencia.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4, // 4 columnas x 2 filas = 8 botones perfectamente alineados
+                  crossAxisCount: 4,
                   crossAxisSpacing: 6,
                   mainAxisSpacing: 6,
                   childAspectRatio: 1.1,
@@ -119,24 +102,22 @@ class MainScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final boton = botonesEmergencia[index];
                   return InkWell(
-                    onTap: () {
-                      // Acción para cada uno de los 8 botones
-                    },
+                    onTap: () {},
                     borderRadius: BorderRadius.circular(10),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: boton['color'],
+                        color: boton['color'] as Color,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(boton['icono'], color: Colors.white, size: 22),
+                          Icon(boton['icono'] as IconData, color: Colors.white, size: 22),
                           const SizedBox(height: 4),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 2),
                             child: Text(
-                              boton['titulo'],
+                              boton['titulo'] as String,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.white,
