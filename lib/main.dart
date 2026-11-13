@@ -31,7 +31,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _bannerIndex = 0;
 
-  final List> _bannerItems = [
+    final List> _bannerItems = [
+
     {
       'title': '📢 Pauta Comercial Wompi',
       'subtitle': 'Afilie su taller o grúa hoy mismo desde $50.000 COP'
