@@ -1,115 +1,111 @@
 import 'package:flutter/material.dart';
 
 class BottomActionGrid extends StatelessWidget {
-  const BottomActionGrid({Key? key}) : super(key: key);
+  final Function(String actionId)? onActionSelected;
+
+  const BottomActionGrid({Key? key, this.onActionSelected}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        color: Colors.black.withOpacity(0.75),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 8,
-            offset: const Offset(0, -2),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Fila 1 (4 Botones Principales de Emergencia y Acción)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return GridView.count(
+            crossAxisCount: 4, // 4 columnas (2 filas para los 8 botones)
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(), // Fijo, sin scroll interno
+            mainAxisSpacing: 6.0,
+            crossAxisSpacing: 6.0,
+            childAspectRatio: 1.02, // Relación equilibrada para evitar iconos pequeños
             children: [
-              _buildMiniButton(
-                icon: Icons.warning_amber_rounded,
-                label: "S.O.S.",
-                color: Colors.red,
-                onTap: () { /* Acción Alerta S.O.S. */ },
-              ),
-              _buildMiniButton(
+              _buildActionItem(
                 icon: Icons.mic,
-                label: "Voz",
-                color: Colors.orange,
-                onTap: () { /* Acción Alerta por Voz */ },
+                label: 'Voz',
+                onTap: () => onActionSelected?.call('voice_recording'),
               ),
-              _buildMiniButton(
+              _buildActionItem(
                 icon: Icons.camera_alt,
-                label: "Cámara",
-                color: Colors.deepOrange,
-                onTap: () { /* Acción Grabación Cámara */ },
+                label: 'Cámara',
+                onTap: () => onActionSelected?.call('quick_camera'),
               ),
-              _buildMiniButton(
-                icon: Icons.local_shipping,
-                label: "Aliados",
-                color: Colors.blue,
-                onTap: () { /* Ver Aliados */ },
+              _buildActionItem(
+                icon: Icons.car_crash,
+                label: 'Accidente',
+                onTap: () => onActionSelected?.call('accident'),
               ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Fila 2 (4 Botones de Gestión y Utilidades)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildMiniButton(
-                icon: Icons.security,
-                label: "Tránsito",
-                color: Colors.indigo,
-                onTap: () { /* Reporte Tránsito */ },
+              _buildActionItem(
+                icon: Icons.warning_amber_rounded,
+                label: 'Peligro',
+                onTap: () => onActionSelected?.call('danger'),
               ),
-              _buildMiniButton(
-                icon: Icons.car_rental,
-                label: "Robados",
-                color: Colors.purple,
-                onTap: () { /* Vehículos Robados */ },
+              _buildActionItem(
+                icon: Icons.local_police,
+                label: 'Robo Auto',
+                onTap: () => onActionSelected?.call('stolen_car'),
               ),
-              _buildMiniButton(
-                icon: Icons.app_registration,
-                label: "Registro",
-                color: Colors.green,
-                onTap: () { /* Registrar Placa */ },
+              _buildActionItem(
+                icon: Icons.traffic,
+                label: 'Tránsito',
+                onTap: () => onActionSelected?.call('traffic_stop'),
               ),
-              _buildMiniButton(
-                icon: Icons.campaign,
-                label: "Pauta",
-                color: Colors.amber.shade800,
-                onTap: () { /* Pauta / Info */ },
+              _buildActionItem(
+                icon: Icons.sos,
+                label: 'SOS 7',
+                onTap: () => onActionSelected?.call('sos_general'),
+              ),
+              _buildActionItem(
+                icon: Icons.support_agent,
+                label: 'Soporte',
+                onTap: () => onActionSelected?.call('support'),
               ),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildMiniButton({
+  Widget _buildActionItem({
     required IconData icon,
     required String label,
-    required Color color,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: color.opacitizedOrTint(0.15), // o color.withOpacity(0.15)
-              child: Icon(icon, color: color, size: 22),
-            ),
-            const SizedBox(height: 4),
+            Icon(icon, size: 22, color: Colors.redAccent),
+            const SizedBox(height: 3),
             Text(
               label,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              style: const TextStyle(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
             ),
           ],
         ),
