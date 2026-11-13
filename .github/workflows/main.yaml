@@ -24,7 +24,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2' # Versión exacta para evitar conflictos en el kernel de Dart[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span)
+          flutter-version: '3.22.2'
           channel: 'stable'
           cache: true
 
