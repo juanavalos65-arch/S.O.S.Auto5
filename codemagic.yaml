@@ -1,16 +1,17 @@
 workflows:
-  sos-auto-android-workflow:
-    name: S.O.S. Auto Android Workflow
+  sos-auto-release-android:
+    name: S.O.S. Auto Android Release
     max_build_duration: 60
     environment:
-      android_signing:
-        - keystore_reference
-      groups:
-        - keystore_credentials
+      flutter: stable
+      xcode: latest
+      cocoapods: default
     scripts:
-      - name: Build Android Release APK
+      - name: Get Flutter packages
         script: |
-          # Limpiar dependencias y compilar el proyecto en modo release apuntando a la carpeta android
-          cd android && ./gradlew assembleRelease
+          flutter pub get
+      - name: Build APK with Gradle (Release)
+        script: |
+          flutter build apk --release
     artifacts:
-      - 'android/app/build/outputs/apk/release/*.apk'
+      - build/app/outputs/flutter-apk/app-release.apk
