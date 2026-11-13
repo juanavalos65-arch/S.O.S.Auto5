@@ -5,7 +5,7 @@ import 'emergency_sos_screen.dart';
 import 'report_incident_screen.dart';
 import 'traffic_stop_screen.dart';
 import 'stolen_car_screen.dart';
-import 'banner_dinamico.dart';
+import 'banner_dinamico.dart'; // Asegura que este archivo exporta la clase BannerDinamico
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -160,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // MÉTODO DE NAVEGACIÓN DENTRO DE LA CLASE STATE (Con acceso correcto a `context`)
+  // MÉTODO DE NAVEGACIÓN
   void _onTap(String title) {
     Widget targetScreen;
 
@@ -188,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       case 'Novedades':
       default:
-        targetScreen = const BannerDinamicoScreen();
+        targetScreen = const BannerDinamico(); // <- Corregido al nombre exacto
         break;
     }
 
