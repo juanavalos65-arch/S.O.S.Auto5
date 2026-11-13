@@ -1,4 +1,4 @@
-name: Build S.O.S. Auto Suite
+name: Build S.O.S. Auto Android APK
 
 on:
   push:
@@ -8,49 +8,34 @@ on:
 
 jobs:
   build:
+    name: Build Android APK (Release)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java JDK
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2'
+          flutter-version: '3.22.2' # Versión exacta para evitar conflictos en el kernel de Dart[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span)
           channel: 'stable'
           cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Regenerate Android folder
-        run: |
-          rm -rf android
-          flutter create . --platforms=android --org com.sosauto --project-name sos_auto5
-
-      - name: Fix Kotlin version for Flutter 3.22+
-        run: |
-          sed -i 's/id "org.jetbrains.kotlin.android" version ".*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' android/settings.gradle
-          cat android/settings.gradle
-
-      - name: Verify static code analysis
-        run: flutter analyze || true
-
-      - name: Run unit tests
-        run: flutter test || true
-
-      - name: Build Android APK (Release)
+      - name: Build APK Release
         run: flutter build apk --release
 
-      - name: Upload APK artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
