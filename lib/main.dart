@@ -29,7 +29,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  // Índice del banner dinámico tripartito (0: Aliados/Pauta, 1: Vehículos robados, 2: Novedades en vía)
   int _bannerIndex = 0;
 
   final List> _bannerItems = [
@@ -54,7 +53,6 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: Colors.black,
         title: Row(
           children: [
-            // Logotipo Oficial y Cabecera institucional
             const Icon(Icons.local_shipping, color: Colors.redAccent, size: 28),
             const SizedBox(width: 10),
             const Text(
@@ -70,10 +68,9 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: Column(
         children: [
-          // 1. Banner Dinámico Informativo y Comercial (Rotatorio Tripartito)
+          // 1. Banner Dinámico Informativo y Comercial
           GestureDetector(
             onTap: () {
-              // Rotar o abrir detalles del banner al hacer tap
               setState(() {
                 _bannerIndex = (_bannerIndex + 1) % _bannerItems.length;
               });
@@ -118,7 +115,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
           
-          // 2. Mapa Interactivo Central (Medellín / Sincelejo)
+          // 2. Mapa Interactivo Central
           Expanded(
             child: Stack(
               children: [
@@ -148,7 +145,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
                 
-                // 3. Los 8 Botones Flotantes Permanentes sobre el Mapa
+                // 3. Los 8 Botones Flotantes Permanentes
                 Positioned(
                   bottom: 20,
                   left: 16,
@@ -174,7 +171,6 @@ class _MainScreenState extends State<MainScreen> {
                       mainAxisSpacing: 8,
                       childAspectRatio: 1.1,
                       children: [
-                        // 1. Regístrese
                         _buildFloatingButton(
                           context, 
                           'Regístrese', 
@@ -182,7 +178,6 @@ class _MainScreenState extends State<MainScreen> {
                           Colors.blue,
                           () => _showActionModal(context, 'Registro de Usuario y Placa', 'Ingrese los datos del conductor y placa autorizada.')
                         ),
-                        // 2. Paute Aquí (Wompi)
                         _buildFloatingButton(
                           context, 
                           'Paute Aquí', 
@@ -190,7 +185,6 @@ class _MainScreenState extends State<MainScreen> {
                           Colors.amber.shade800,
                           () => _showWompiInfo(context)
                         ),
-                        // 3. Me Varé
                         _buildFloatingButton(
                           context, 
                           'Me Varé', 
@@ -198,7 +192,6 @@ class _MainScreenState extends State<MainScreen> {
                           Colors.orange,
                           () => _showActionModal(context, 'Asistencia Vial (Me Varé)', 'Conectando directamente con grúas y talleres cercanos sin comisiones de intermediación.')
                         ),
-                        // 4. Accidente
                         _buildFloatingButton(
                           context, 
                           'Accidente', 
@@ -206,7 +199,6 @@ class _MainScreenState extends State<MainScreen> {
                           Colors.red,
                           () => _showEmergencyModal(context, '¡Accidente Detectado!')
                         ),
-                        // 5. En Peligro
                         _buildFloatingButton(
                           context, 
                           'En Peligro', 
@@ -214,7 +206,6 @@ class _MainScreenState extends State<MainScreen> {
                           Colors.deepOrange,
                           () => _showEmergencyModal(context, 'Alerta: Estoy en Peligro')
                         ),
-                        // 6. Tránsito
                         _buildFloatingButton(
                           context, 
                           'Tránsito', 
@@ -222,7 +213,6 @@ class _MainScreenState extends State<MainScreen> {
                           Colors.indigo,
                           () => _showEmergencyModal(context, 'Control de Tránsito / Retén')
                         ),
-                        // 7. Robo Auto
                         _buildFloatingButton(
                           context, 
                           'Robo Auto', 
@@ -230,7 +220,6 @@ class _MainScreenState extends State<MainScreen> {
                           Colors.purple,
                           () => _showActionModal(context, 'Reporte de Robo a la Red', 'Su alerta será difundida inmediatamente al banner y a la central de seguridad.')
                         ),
-                        // 8. Novedades
                         _buildFloatingButton(
                           context, 
                           'Novedades', 
