@@ -1,4 +1,4 @@
-name: Build S.O.S. Auto Android APK
+name: Build S.O.S. Auto Suite
 
 on:
   push:
@@ -8,17 +8,16 @@ on:
 
 jobs:
   build:
-    name: Build Android APK (Release)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up Java JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
       - name: Set up Flutter
@@ -31,11 +30,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK Release
+      - name: Verify static code analysis
+        run: flutter analyze || true
+
+      - name: Run unit tests
+        run: flutter test || true
+
+      - name: Build Android APK (Release)
         run: flutter build apk --release
 
-      - name: Upload APK Artifact
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
