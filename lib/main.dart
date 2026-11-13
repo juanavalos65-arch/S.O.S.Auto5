@@ -16,13 +16,36 @@ class SOSAutoApp extends StatelessWidget {
         primarySwatch: Colors.red,
         scaffoldBackgroundColor: Colors.grey[100],
       ),
-      home: const HomeScreen(),
+      home: const MainScreen(),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class MainScreen extends StatefulWidget {
+  const MainScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  // Índice del banner dinámico tripartito (0: Aliados/Pauta, 1: Vehículos robados, 2: Novedades en vía)
+  int _bannerIndex = 0;
+
+  final List> _bannerItems = [
+    {
+      'title': '📢 Pauta Comercial Wompi',
+      'subtitle': 'Afilie su taller o grúa hoy mismo desde $50.000 COP'
+    },
+    {
+      'title': '🚨 Alerta: Vehículo robado',
+      'subtitle': 'Placa HXU874 | Chevrolet Aveo gris en Medellín'
+    },
+    {
+      'title': '⚠️ Novedad en Vía',
+      'subtitle': 'Derrumbe habilitado a un carril en la vía Sincelejo'
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +54,7 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         title: Row(
           children: [
-            // Logotipo Oficial y Cabecera
+            // Logotipo Oficial y Cabecera institucional
             const Icon(Icons.local_shipping, color: Colors.redAccent, size: 28),
             const SizedBox(width: 10),
             const Text(
@@ -48,29 +71,54 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: [
           // 1. Banner Dinámico Informativo y Comercial (Rotatorio Tripartito)
-          Container(
-            width: double.infinity,
-            color: Colors.amber[100],
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.campaign, color: Colors.orange, size: 24),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    '⚠️ Alerta: Vehículo robado placa HXU874 | Paute aquí con Wompi',
-                    style: TextStyle(
-                      color: Colors.brown[900],
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+          GestureDetector(
+            onTap: () {
+              // Rotar o abrir detalles del banner al hacer tap
+              setState(() {
+                _bannerIndex = (_bannerIndex + 1) % _bannerItems.length;
+              });
+              if (_bannerIndex == 0) {
+                _showWompiInfo(context);
+              }
+            },
+            child: Container(
+              width: double.infinity,
+              color: Colors.amber[100],
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.campaign, color: Colors.orange, size: 26),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _bannerItems[_bannerIndex]['title']!,
+                          style: TextStyle(
+                            color: Colors.brown[900],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _bannerItems[_bannerIndex]['subtitle']!,
+                          style: TextStyle(
+                            color: Colors.brown[800],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  const Icon(Icons.touch_app, color: Colors.brown, size: 18),
+                ],
+              ),
             ),
           ),
           
-          // 2. Mapa Interactivo Central (Simulado)
+          // 2. Mapa Interactivo Central (Medellín / Sincelejo)
           Expanded(
             child: Stack(
               children: [
@@ -89,6 +137,11 @@ class HomeScreen extends StatelessWidget {
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'GPS Activo | Sincronización en tiempo real',
+                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),
                       ],
                     ),
@@ -121,61 +174,69 @@ class HomeScreen extends StatelessWidget {
                       mainAxisSpacing: 8,
                       childAspectRatio: 1.1,
                       children: [
+                        // 1. Regístrese
                         _buildFloatingButton(
                           context, 
                           'Regístrese', 
                           Icons.person_add, 
                           Colors.blue,
-                          () => _showActionMsg(context, 'Registro de usuario y placa')
+                          () => _showActionModal(context, 'Registro de Usuario y Placa', 'Ingrese los datos del conductor y placa autorizada.')
                         ),
+                        // 2. Paute Aquí (Wompi)
                         _buildFloatingButton(
                           context, 
                           'Paute Aquí', 
                           Icons.star, 
                           Colors.amber.shade800,
-                          () => _showActionMsg(context, 'Pasarela Wompi - Planes publicitarios')
+                          () => _showWompiInfo(context)
                         ),
+                        // 3. Me Varé
                         _buildFloatingButton(
                           context, 
                           'Me Varé', 
                           Icons.build, 
                           Colors.orange,
-                          () => _showActionMsg(context, 'Asistencia vial directa')
+                          () => _showActionModal(context, 'Asistencia Vial (Me Varé)', 'Conectando directamente con grúas y talleres cercanos sin comisiones de intermediación.')
                         ),
+                        // 4. Accidente
                         _buildFloatingButton(
                           context, 
                           'Accidente', 
                           Icons.car_crash, 
                           Colors.red,
-                          () => _showEmergencyModal(context, 'Me Accidenté (Anulación por PIN/Biometría)')
+                          () => _showEmergencyModal(context, '¡Accidente Detectado!')
                         ),
+                        // 5. En Peligro
                         _buildFloatingButton(
                           context, 
                           'En Peligro', 
                           Icons.warning, 
                           Colors.deepOrange,
-                          () => _showEmergencyModal(context, 'Estoy en Peligro (Alerta de seguridad)')
+                          () => _showEmergencyModal(context, 'Alerta: Estoy en Peligro')
                         ),
+                        // 6. Tránsito
                         _buildFloatingButton(
                           context, 
                           'Tránsito', 
                           Icons.local_police, 
                           Colors.indigo,
-                          () => _showEmergencyModal(context, 'Agente de Tránsito (Grabación activada)')
+                          () => _showEmergencyModal(context, 'Control de Tránsito / Retén')
                         ),
+                        // 7. Robo Auto
                         _buildFloatingButton(
                           context, 
                           'Robo Auto', 
                           Icons.security, 
                           Colors.purple,
-                          () => _showActionMsg(context, 'Reporte inmediato de Robo a la red')
+                          () => _showActionModal(context, 'Reporte de Robo a la Red', 'Su alerta será difundida inmediatamente al banner y a la central de seguridad.')
                         ),
+                        // 8. Novedades
                         _buildFloatingButton(
                           context, 
                           'Novedades', 
                           Icons.traffic, 
                           Colors.green,
-                          () => _showActionMsg(context, 'Novedades y estado en la vía')
+                          () => _showActionModal(context, 'Novedades en la Vía', 'Reporte derrumbes, clima o cierres viales a la comunidad.')
                         ),
                       ],
                     ),
@@ -217,9 +278,50 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  void _showActionMsg(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+  void _showActionModal(BuildContext context, String title, String description) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(description),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showWompiInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('📢 Paute Aquí con Wompi'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Planes publicitarios oficiales para talleres y aliados:'),
+            SizedBox(height: 8),
+            Text('• 1 Mes: $50.000 COP + Impuestos'),
+            Text('• 6 Meses: $550.000 COP + Impuestos'),
+            Text('• 1 Año: $500.000 COP + Impuestos'),
+            SizedBox(height: 12),
+            Text('Enlace de pago oficial Wompi:\nhttps://checkout.wompi.co/l/VPOS_3Odu3K',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -228,21 +330,21 @@ class HomeScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(title),
-        content: const Text('⚠️ Alerta activada. Cuenta regresiva de 5 segundos. Ingrese PIN o huella para cancelar falsos positivos.'),
+        content: const Text('⚠️ Alerta activada. Cuenta regresiva de 5 segundos. Ingrese PIN o huella biométrica para cancelar falsos positivos antes del envío de coordenadas GPS.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar (PIN/Biometría)'),
+            child: const Text('Cancelar (PIN/Biometría)', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('¡Alerta enviada a la red y soporte.applay65@gmail.com!')),
+                const SnackBar(content: Text('¡Alerta transmitida con éxito a soporte.applay65@gmail.com!')),
               );
             },
-            child: const Text('Confirmar Emergencia'),
+            child: const Text('Confirmar Alerta'),
           ),
         ],
       ),
