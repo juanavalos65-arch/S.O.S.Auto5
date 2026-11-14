@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
 
+class _AuthorizedDriver {
+  final String name;
+  final String phone;
+
+  const _AuthorizedDriver({
+    required this.name,
+    required this.phone,
+  });
+}
+
 class RegisterVehicleScreen extends StatefulWidget {
   const RegisterVehicleScreen({super.key});
 
@@ -30,8 +40,8 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
   DateTime? _soatExpiry;
   DateTime? _tecnoExpiry;
 
-  // 4. Múltiples conductores asociados a la misma placa
-  final List> _authorizedDrivers = [];
+  // 4. Múltiples conductores asociados a la misma placa (sin < > anidados)
+  final _authorizedDrivers = <_AuthorizedDriver>[];
   final _extraDriverNameController = TextEditingController();
   final _extraDriverPhoneController = TextEditingController();
 
@@ -91,7 +101,7 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
       return;
     }
     setState(() {
-      _authorizedDrivers.add({'name': name, 'phone': phone});
+      _authorizedDrivers.add(_AuthorizedDriver(name: name, phone: phone));
       _extraDriverNameController.clear();
       _extraDriverPhoneController.clear();
     });
@@ -483,8 +493,8 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
                   child: ListTile(
                     dense: true,
                     leading: const Icon(Icons.person_outline, color: Color(0xFF0D1B2A)),
-                    title: Text(drv['name'] ?? ''),
-                    subtitle: Text('Tel: ${drv['phone']}'),
+                    title: Text(drv.name),
+                    subtitle: Text('Tel: ${drv.phone}'),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
                       onPressed: () {
