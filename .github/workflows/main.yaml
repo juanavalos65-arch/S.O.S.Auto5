@@ -31,6 +31,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Clean and Regenerate Native Android V2 Structure
+        run: |
+          rm -rf android
+          flutter create . --platforms=android --org com.sosauto --project-name app
+
       - name: Verify static code analysis
         run: flutter analyze --no-fatal-warnings
 
