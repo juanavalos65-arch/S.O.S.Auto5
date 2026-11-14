@@ -15,8 +15,8 @@ class SOSAutoApp extends StatelessWidget {
       title: 'S.O.S. Auto',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.red,
-        scaffoldBackgroundColor: Colors.grey[100],
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0D1B2A)),
+        useMaterial3: true,
       ),
       home: const HomeScreen(),
     );
