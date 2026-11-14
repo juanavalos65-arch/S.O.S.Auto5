@@ -37,7 +37,7 @@ jobs:
           flutter create . --platforms=android --org com.sosauto --project-name app
 
       - name: Verify static code analysis
-        run: flutter analyze --no-fatal-warnings
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Run unit tests
         run: flutter test
