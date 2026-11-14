@@ -13,8 +13,10 @@ class MainScreen extends StatelessWidget {
         children: [
           // 1. Capa Base: El Mapa Interactivo (ocupa toda la pantalla)
           const Positioned.fill(
-            child: MapScreenWidget(), // Asegúrate de que el widget principal en map_screen.dart se llame así (o cámbialo según corresponda)
-          ),
+            child: ,MapScreen(),
+ // Asegúrate de que el widget principal en map_screen.dart se llame así (o cámbialo según corresponda)
+          ),MapScreen(),
+
 
           // 2. Capa Superior: Banner Dinámico / Alertas en la vía
           const Positioned(
