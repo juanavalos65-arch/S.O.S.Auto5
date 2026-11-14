@@ -1,5 +1,71 @@
 import 'package:flutter/material.dart';
-import '../services/road_news_service.dart';
+
+class RoadIncident {
+  final String id;
+  final String category;
+  final String title;
+  final String description;
+  final String location;
+  final DateTime reportedAt;
+  final String reporterPlate;
+  bool isResolved;
+
+  RoadIncident({
+    required this.id,
+    required this.category,
+    required this.title,
+    required this.description,
+    required this.location,
+    required this.reportedAt,
+    required this.reporterPlate,
+    this.isResolved = false,
+  });
+
+  String get bannerHeadline =>
+      '⚠️ NOVEDAD EN VÍA [$category]: $title — $location';
+}
+
+class RoadNewsService extends ChangeNotifier {
+  static final RoadNewsService instance = RoadNewsService._internal();
+  RoadNewsService._internal();
+
+  final List<RoadIncident> _incidents = [
+    RoadIncident(
+      id: 'INC-001',
+      category: 'Vía cerrada',
+      title: 'Cierre total por caída de árbol',
+      description: 'Paso restringido en ambos sentidos. Tomar vía alterna.',
+      location: 'Troncal de Occidente - Km 14',
+      reportedAt: DateTime.now().subtract(const Duration(minutes: 25)),
+      reporterPlate: 'HXU874',
+    ),
+    RoadIncident(
+      id: 'INC-002',
+      category: 'Aceite / Derrame',
+      title: 'Mancha de aceite en carril derecho',
+      description: 'Precaución al frenar en curva pronunciada.',
+      location: 'Variante Sur - Sector La Cruz',
+      reportedAt: DateTime.now().subtract(const Duration(hours: 1, minutes: 10)),
+      reporterPlate: 'KLM412',
+    ),
+  ];
+
+  List<RoadIncident> get activeIncidents =>
+      _incidents.where((item) => !item.isResolved).toList();
+
+  void addIncident(RoadIncident incident) {
+    _incidents.insert(0, incident);
+    notifyListeners();
+  }
+
+  void markAsResolved(String id) {
+    final index = _incidents.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      _incidents[index].isResolved = true;
+      notifyListeners();
+    }
+  }
+}
 
 class ReportIncidentScreen extends StatefulWidget {
   const ReportIncidentScreen({super.key});
@@ -11,7 +77,7 @@ class ReportIncidentScreen extends StatefulWidget {
 class _ReportIncidentScreenState extends State<ReportIncidentScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String _selectedCategory = 'Vía cerrada';
   final TextEditingController _titleController = TextEditingController();
@@ -19,7 +85,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _plateController = TextEditingController();
 
-  final List> _categories = [
+  static const List> _categories = [
     {'label': 'Vía cerrada', 'icon': Icons.block, 'color': Colors.red},
     {'label': 'Derrumbe', 'icon': Icons.landslide, 'color': Colors.brown},
     {'label': 'Aceite / Derrame', 'icon': Icons.oil_barrel, 'color': Colors.deepOrange},
@@ -61,7 +127,6 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
           : _plateController.text.trim().toUpperCase(),
     );
 
-    // Publica la novedad y actualiza automáticamente el Banner Dinámico
     RoadNewsService.instance.addIncident(newIncident);
 
     _titleController.clear();
@@ -71,13 +136,12 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('✅ Novedad publicada y enviada al Banner Dinámico en tiempo real.'),
+        content: Text('Novedad publicada y enviada al Banner Dinámico.'),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 3),
       ),
     );
 
-    // Cambia automáticamente a la pestaña de consulta para ver el reporte publicado
     _tabController.animateTo(0);
   }
 
@@ -90,19 +154,21 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
   }
 
   IconData _getCategoryIcon(String category) {
-    final found = _categories.firstWhere(
-      (c) => c['label'] == category,
-      orElse: () => {'icon': Icons.warning_amber_rounded},
-    );
-    return found['icon'] as IconData;
+    for (final cat in _categories) {
+      if (cat['label'] == category) {
+        return cat['icon'] as IconData;
+      }
+    }
+    return Icons.warning_amber_rounded;
   }
 
   Color _getCategoryColor(String category) {
-    final found = _categories.firstWhere(
-      (c) => c['label'] == category,
-      orElse: () => {'color': Colors.amber},
-    );
-    return found['color'] as Color;
+    for (final cat in _categories) {
+      if (cat['label'] == category) {
+        return cat['color'] as Color;
+      }
+    }
+    return Colors.amber;
   }
 
   @override
@@ -142,7 +208,6 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
     );
   }
 
-  /// Pestaña 1: Conocer las novedades activas (conectadas con el Banner Dinámico)
   Widget _buildNewsListTab() {
     return AnimatedBuilder(
       animation: RoadNewsService.instance,
@@ -161,7 +226,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Sincronizado con el Banner Dinámico (${incidents.length} novedades activas)',
+                      'Sincronizado con el Banner Dinámico (${incidents.length} activas)',
                       style: TextStyle(
                         color: Colors.amber.shade900,
                         fontWeight: FontWeight.w600,
@@ -190,7 +255,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
                             ),
                             const SizedBox(height: 6),
                             const Text(
-                              'No hay novedades reportadas en este momento. Si ves algún incidente, repórtalo para alertar en el banner.',
+                              'No hay novedades reportadas en este momento.',
                               textAlign: TextAlign.center,
                               style: TextStyle(color: Colors.black54),
                             ),
@@ -210,7 +275,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
                           margin: const EdgeInsets.only(bottom: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: catColor.withOpacity(0.4)),
+                            side: BorderSide(color: catColor.withValues(alpha: 0.4)),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(14),
@@ -220,9 +285,12 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
                                 Row(
                                   children: [
                                     CircleAvatar(
-                                      backgroundColor: catColor.withOpacity(0.15),
-                                      child: Icon(_getCategoryIcon(item.category),
-                                          color: catColor),
+                                      backgroundColor:
+                                          catColor.withValues(alpha: 0.15),
+                                      child: Icon(
+                                        _getCategoryIcon(item.category),
+                                        color: catColor,
+                                      ),
                                     ),
                                     const SizedBox(width: 10),
                                     Expanded(
@@ -294,7 +362,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
                                             .showSnackBar(
                                           const SnackBar(
                                             content: Text(
-                                                '✔️ Novedad marcada como resuelta y retirada del banner.'),
+                                                'Novedad marcada como resuelta y retirada del banner.'),
                                           ),
                                         );
                                       },
@@ -322,7 +390,6 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
     );
   }
 
-  /// Pestaña 2: Formulario para reportar una nueva novedad hacia el Banner Dinámico
   Widget _buildReportFormTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
