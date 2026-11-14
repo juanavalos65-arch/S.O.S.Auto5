@@ -25,25 +25,20 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           // ==========================================
-          // 1. MAPA INTERACTIVO DE FONDO (Bloque interactivo)
+          // 1. MAPA INTERACTIVO DE FONDO
           // ==========================================
           Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                // Acción al interactuar con el mapa general si se requiere
-              },
-              child: GoogleMap(
-                initialCameraPosition: const CameraPosition(
-                  target: _initialPosition,
-                  zoom: 14.0,
-                ),
-                myLocationEnabled: true,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-                onMapCreated: (controller) {
-                  _mapController = controller;
-                },
+            child: GoogleMap(
+              initialCameraPosition: const CameraPosition(
+                target: _initialPosition,
+                zoom: 14.0,
               ),
+              myLocationEnabled: false, // Evita crash nativo antes de pedir permiso GPS
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              onMapCreated: (controller) {
+                _mapController = controller;
+              },
             ),
           ),
 
@@ -68,11 +63,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
                       ],
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.shield, color: Colors.redAccent, size: 26), // Logotipo oficial S.O.S. Auto
+                      children: [
+                        Icon(Icons.shield, color: Colors.redAccent, size: 26),
                         SizedBox(width: 8),
                         Text(
                           'S.O.S. Auto',
@@ -92,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // 3. BANNER DINÁMICO (Botón interactivo / Carrusel)
                 // ==========================================
                 InkWell(
-                  onTap: () => _navigateTo(const AlliesScreen()), // Conectado a sección comercial/pauta
+                  onTap: () => _navigateTo(const AlliesScreen()),
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -104,8 +99,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         BoxShadow(color: Colors.black45, blurRadius: 6, offset: Offset(0, 2)),
                       ],
                     ),
-                    child: Row(
-                      children: const [
+                    child: const Row(
+                      children: [
                         Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 22),
                         SizedBox(width: 8),
                         Expanded(
@@ -129,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // ==========================================
-          // 4. PARRILLA INFERIOR CON LOS 8 BOTONES PRINCIPALES (Dimensiones correctas 4x2)
+          // 4. PARRILLA INFERIOR CON LOS 8 BOTONES PRINCIPALES (4x2)
           // ==========================================
           Positioned(
             bottom: 20,
@@ -149,12 +144,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               child: GridView.count(
-                crossAxisCount: 4, // Exactamente 4 columnas
+                crossAxisCount: 4,
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(), // Fijo, sin desbordamiento
+                physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: 6.0,
                 crossAxisSpacing: 6.0,
-                childAspectRatio: 0.95, // Proporción perfecta para iconos y textos legibles
+                childAspectRatio: 0.95,
                 children: [
                   _buildButton('Regístrese', Icons.person_add, Colors.blue, () => _navigateTo(const RegisterVehicleScreen())),
                   _buildButton('Paute Aquí', Icons.campaign, Colors.amber, () => _navigateTo(const AlliesScreen())),
@@ -173,7 +168,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget auxiliar optimizado para cada uno de los 8 botones
   Widget _buildButton(String label, IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
@@ -206,7 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Método centralizado para manejar la navegación segura entre pantallas
   void _navigateTo(Widget screen) {
     Navigator.push(
       context,
