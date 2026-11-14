@@ -1,7 +1,6 @@
-name: sos_auto
-description: S.O.S. Auto - Asistencia vehicular y gestión de emergencias viales.
+name: app
+description: "S.O.S. Auto - Asistencia vial, emergencias y red de seguridad vehicular."
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -10,16 +9,28 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
-  google_maps_flutter: ^2.6.0
-  url_launcher: ^6.2.6
-  geolocator: ^11.0.0
-  shared_preferences: ^2.2.3
+
+  # Backend, Base de Datos y Notificaciones Push
+  firebase_core: ^3.1.1
+  firebase_messaging: ^15.0.2
+  supabase_flutter: ^2.5.6
+
+  # Mapa Interactivo y Geolocalización
+  google_maps_flutter: ^2.7.0
+  geolocator: ^12.0.0
+
+  # Seguridad (PIN / Biometría) y Almacenamiento Cifrado
+  local_auth: ^2.2.0
+  flutter_secure_storage: ^9.2.2
+
+  # Utilidades y Pasarela Wompi
+  url_launcher: ^6.3.0
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
