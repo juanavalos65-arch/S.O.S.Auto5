@@ -19,6 +19,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+          cache: 'gradle'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -30,22 +31,22 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Clean and Regenerate Native Android V2 Structure
-        run: |
-          rm -rf android
-          flutter create . --platforms=android --org ge.sosauto --project-name app
-
       - name: Verify static code analysis
-        run: flutter analyze || true
+        run: flutter analyze
 
       - name: Run unit tests
-        run: flutter test || true
+        run: flutter test
 
       - name: Build Android APK (Release)
         run: flutter build apk --release
 
-      - name: Upload APK artifact
+      - name: Build Android App Bundle (Google Play)
+        run: flutter build appbundle --release
+
+      - name: Upload APK & AAB artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: sos-auto-release
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
