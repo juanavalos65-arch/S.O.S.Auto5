@@ -17,15 +17,17 @@ class _BannerItem {
   });
 }
 
-class _EmergencyButtonItem {
+class _MainButtonItem {
   final String label;
   final IconData icon;
   final Color color;
+  final bool isEmergency;
 
-  const _EmergencyButtonItem({
+  const _MainButtonItem({
     required this.label,
     required this.icon,
     required this.color,
+    required this.isEmergency,
   });
 }
 
@@ -64,15 +66,55 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   ];
 
-  final List<_EmergencyButtonItem> _emergencyButtons = [
-    _EmergencyButtonItem(label: 'Pánico / Robo', icon: Icons.gpp_maybe, color: Colors.red.shade700),
-    _EmergencyButtonItem(label: 'Accidente', icon: Icons.car_crash, color: Colors.deepOrange.shade700),
-    _EmergencyButtonItem(label: 'Grúa', icon: Icons.local_shipping, color: Colors.blue.shade800),
-    _EmergencyButtonItem(label: 'Mecánico', icon: Icons.build, color: Colors.indigo.shade700),
-    _EmergencyButtonItem(label: 'Batería', icon: Icons.battery_charging_full, color: Colors.amber.shade800),
-    _EmergencyButtonItem(label: 'Llanta', icon: Icons.tire_repair, color: Colors.teal.shade700),
-    _EmergencyButtonItem(label: 'Cerrajero', icon: Icons.vpn_key, color: Colors.purple.shade700),
-    _EmergencyButtonItem(label: 'Ambulancia', icon: Icons.medical_services, color: Colors.pink.shade700),
+  final List<_MainButtonItem> _mainButtons = [
+    _MainButtonItem(
+      label: 'Registro',
+      icon: Icons.app_registration,
+      color: Colors.blue.shade800,
+      isEmergency: false,
+    ),
+    _MainButtonItem(
+      label: 'Paute aquí',
+      icon: Icons.campaign,
+      color: Colors.teal.shade700,
+      isEmergency: false,
+    ),
+    _MainButtonItem(
+      label: 'Me varé',
+      icon: Icons.car_repair,
+      color: Colors.amber.shade900,
+      isEmergency: false,
+    ),
+    _MainButtonItem(
+      label: 'Accidente',
+      icon: Icons.car_crash,
+      color: Colors.deepOrange.shade700,
+      isEmergency: true,
+    ),
+    _MainButtonItem(
+      label: 'Estoy en peligro',
+      icon: Icons.gpp_maybe,
+      color: Colors.red.shade700,
+      isEmergency: true,
+    ),
+    _MainButtonItem(
+      label: 'Robo de auto',
+      icon: Icons.no_crash,
+      color: Colors.red.shade900,
+      isEmergency: true,
+    ),
+    _MainButtonItem(
+      label: 'Novedades en la vía',
+      icon: Icons.alt_route,
+      color: Colors.indigo.shade700,
+      isEmergency: false,
+    ),
+    _MainButtonItem(
+      label: 'Agente de tránsito',
+      icon: Icons.local_police,
+      color: const Color(0xFF0D1B2A),
+      isEmergency: true,
+    ),
   ];
 
   @override
@@ -91,6 +133,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _bannerTimer?.cancel();
     super.dispose();
+  }
+
+  void _onButtonPressed(_MainButtonItem btn) {
+    if (btn.isEmergency) {
+      _triggerEmergency(btn.label, btn.color);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Abriendo módulo: ${btn.label}'),
+          backgroundColor: btn.color,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   void _triggerEmergency(String serviceName, Color color) {
@@ -188,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('¡S.O.S. enviado! Asistencia de $serviceName en camino a tu ubicación.'),
+        content: Text('¡S.O.S. enviado! Reporte de "$serviceName" activado con tu GPS.'),
         backgroundColor: Colors.red.shade800,
         duration: const Duration(seconds: 4),
       ),
@@ -236,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-          // 1. FONDO DE MAPA EN MODO PRUEBA (Mientras se configura la API Key)
+          // 1. FONDO DE MAPA EN MODO PRUEBA (Quieto hasta tener la API Key)
           Container(
             width: double.infinity,
             height: double.infinity,
@@ -327,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 3. PANEL FLOTANTE INFERIOR CON LOS 8 BOTONES DE EMERGENCIA
+          // 3. PANEL FLOTANTE INFERIOR CON LOS 8 BOTONES OFICIALES
           Positioned(
             bottom: 14,
             left: 12,
@@ -349,9 +405,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    'ASISTENCIA INMEDIATA S.O.S.',
+                    'S.O.S. AUTO • ACCIONES Y EMERGENCIAS',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF0D1B2A),
                       letterSpacing: 0.8,
@@ -361,30 +417,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _emergencyButtons.length,
+                    itemCount: _mainButtons.length,
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
-                      childAspectRatio: 0.92,
+                      childAspectRatio: 0.88,
                     ),
                     itemBuilder: (context, index) {
-                      final btn = _emergencyButtons[index];
+                      final btn = _mainButtons[index];
                       return InkWell(
-                        onTap: () => _triggerEmergency(btn.label, btn.color),
+                        onTap: () => _onButtonPressed(btn),
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                           decoration: BoxDecoration(
-                            color: btn.color.withOpacity(0.12),
+                            color: btn.color.withOpacity(0.11),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: btn.color.withOpacity(0.4),
+                              color: btn.color.withOpacity(0.45),
                             ),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(btn.icon, color: btn.color, size: 26),
+                              Icon(btn.icon, color: btn.color, size: 25),
                               const SizedBox(height: 4),
                               Text(
                                 btn.label,
@@ -392,7 +449,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 10.5,
+                                  height: 1.15,
                                   fontWeight: FontWeight.w700,
                                   color: btn.color,
                                 ),
