@@ -1,6 +1,34 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+class _BannerItem {
+  final String tipo;
+  final String titulo;
+  final String subtitulo;
+  final Color color;
+  final IconData icono;
+
+  const _BannerItem({
+    required this.tipo,
+    required this.titulo,
+    required this.subtitulo,
+    required this.color,
+    required this.icono,
+  });
+}
+
+class _EmergencyButtonItem {
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  const _EmergencyButtonItem({
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -12,39 +40,39 @@ class _HomeScreenState extends State<HomeScreen> {
   int _bannerIndex = 0;
   Timer? _bannerTimer;
 
-  final List> _bannerItems = [
-    {
-      'tipo': 'ALIADO COMERCIAL',
-      'titulo': 'Grúas y Talleres 24/7 en Medellín y Sincelejo',
-      'subtitulo': '20% de descuento presentando tu app S.O.S. Auto',
-      'color': const Color(0xFF1565C0),
-      'icono': Icons.local_shipping,
-    },
-    {
-      'tipo': 'ALERTA VEHÍCULO ROBADO',
-      'titulo': 'Mazda 3 Gris - Placa KLM-456',
-      'subtitulo': 'Reportado hace 15 min. Si lo ves, toca aquí',
-      'color': const Color(0xFFC62828),
-      'icono': Icons.warning_amber_rounded,
-    },
-    {
-      'tipo': 'NOVEDAD EN LA VÍA',
-      'titulo': 'Paso restringido Troncal de Occidente',
-      'subtitulo': 'Cierre parcial por mantenimiento vial - Conduzca con precaución',
-      'color': const Color(0xFFEF6C00),
-      'icono': Icons.traffic,
-    },
+  static const List<_BannerItem> _bannerItems = [
+    _BannerItem(
+      tipo: 'ALIADO COMERCIAL',
+      titulo: 'Grúas y Talleres 24/7 en Medellín y Sincelejo',
+      subtitulo: '20% de descuento presentando tu app S.O.S. Auto',
+      color: Color(0xFF1565C0),
+      icono: Icons.local_shipping,
+    ),
+    _BannerItem(
+      tipo: 'ALERTA VEHÍCULO ROBADO',
+      titulo: 'Mazda 3 Gris - Placa KLM-456',
+      subtitulo: 'Reportado hace 15 min. Si lo ves, toca aquí',
+      color: Color(0xFFC62828),
+      icono: Icons.warning_amber_rounded,
+    ),
+    _BannerItem(
+      tipo: 'NOVEDAD EN LA VÍA',
+      titulo: 'Paso restringido Troncal de Occidente',
+      subtitulo: 'Cierre parcial por mantenimiento vial - Conduzca con precaución',
+      color: Color(0xFFEF6C00),
+      icono: Icons.traffic,
+    ),
   ];
 
-  final List> _emergencyButtons = [
-    {'label': 'Pánico / Robo', 'icon': Icons.gpp_maybe, 'color': Colors.red.shade700},
-    {'label': 'Accidente', 'icon': Icons.car_crash, 'color': Colors.deepOrange.shade700},
-    {'label': 'Grúa', 'icon': Icons.local_shipping, 'color': Colors.blue.shade800},
-    {'label': 'Mecánico', 'icon': Icons.build, 'color': Colors.indigo.shade700},
-    {'label': 'Batería', 'icon': Icons.battery_charging_full, 'color': Colors.amber.shade800},
-    {'label': 'Llanta', 'icon': Icons.tire_repair, 'color': Colors.teal.shade700},
-    {'label': 'Cerrajero', 'icon': Icons.vpn_key, 'color': Colors.purple.shade700},
-    {'label': 'Ambulancia', 'icon': Icons.medical_services, 'color': Colors.pink.shade700},
+  final List<_EmergencyButtonItem> _emergencyButtons = [
+    _EmergencyButtonItem(label: 'Pánico / Robo', icon: Icons.gpp_maybe, color: Colors.red.shade700),
+    _EmergencyButtonItem(label: 'Accidente', icon: Icons.car_crash, color: Colors.deepOrange.shade700),
+    _EmergencyButtonItem(label: 'Grúa', icon: Icons.local_shipping, color: Colors.blue.shade800),
+    _EmergencyButtonItem(label: 'Mecánico', icon: Icons.build, color: Colors.indigo.shade700),
+    _EmergencyButtonItem(label: 'Batería', icon: Icons.battery_charging_full, color: Colors.amber.shade800),
+    _EmergencyButtonItem(label: 'Llanta', icon: Icons.tire_repair, color: Colors.teal.shade700),
+    _EmergencyButtonItem(label: 'Cerrajero', icon: Icons.vpn_key, color: Colors.purple.shade700),
+    _EmergencyButtonItem(label: 'Ambulancia', icon: Icons.medical_services, color: Colors.pink.shade700),
   ];
 
   @override
@@ -70,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Timer? countdownTimer;
     final TextEditingController pinController = TextEditingController();
 
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
@@ -248,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
               duration: const Duration(milliseconds: 400),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: currentBanner['color'],
+                color: currentBanner.color,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: const [
                   BoxShadow(
@@ -260,14 +288,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(currentBanner['icono'], color: Colors.white, size: 32),
+                  Icon(currentBanner.icono, color: Colors.white, size: 32),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          currentBanner['tipo'],
+                          currentBanner.tipo,
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 10,
@@ -276,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         Text(
-                          currentBanner['titulo'],
+                          currentBanner.titulo,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -286,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          currentBanner['subtitulo'],
+                          currentBanner.subtitulo,
                           style: const TextStyle(color: Colors.white, fontSize: 12),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -343,30 +371,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemBuilder: (context, index) {
                       final btn = _emergencyButtons[index];
                       return InkWell(
-                        onTap: () => _triggerEmergency(btn['label'], btn['color']),
+                        onTap: () => _triggerEmergency(btn.label, btn.color),
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: (btn['color'] as Color).withOpacity(0.12),
+                            color: btn.color.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: (btn['color'] as Color).withOpacity(0.4),
+                              color: btn.color.withOpacity(0.4),
                             ),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(btn['icon'], color: btn['color'], size: 26),
+                              Icon(btn.icon, color: btn.color, size: 26),
                               const SizedBox(height: 4),
                               Text(
-                                btn['label'],
+                                btn.label,
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: btn['color'],
+                                  color: btn.color,
                                 ),
                               ),
                             ],
