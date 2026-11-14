@@ -28,6 +28,17 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Regenerar estructura Android v2 limpia
+        run: |
+          rm -rf android
+          flutter create --platforms=android --org com.sosauto .
+
+      - name: Configurar permisos en AndroidManifest (v2)
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>\n    <application|' "$MANIFEST"
+          sed -i 's|android:label="[^"]*"|android:label="S.O.S. Auto"|' "$MANIFEST"
+
       - name: Install dependencies
         run: flutter pub get
 
