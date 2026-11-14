@@ -9,9 +9,11 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
+        <!-- Descomentar cuando tengas tu API Key real de Google Maps
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="TU_API_KEY_DE_GOOGLE_MAPS"/>
+        -->
 
         <activity
             android:name=".MainActivity"
@@ -31,6 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
