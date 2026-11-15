@@ -707,7 +707,7 @@ class _AgenteTransitoScreenState extends State<AgenteTransitoScreen> {
 
                     // Selector de País para aplicar la ley de tránsito correspondiente
                     DropdownButtonFormField<String>(
-                      Value: _paisSeleccionado,
+                      value: _paisSeleccionado,
                       decoration: InputDecoration(
                         labelText: 'País del procedimiento (Normativa aplicable)',
                         prefixIcon: const Icon(Icons.public, color: Color(0xFF102A43)),
