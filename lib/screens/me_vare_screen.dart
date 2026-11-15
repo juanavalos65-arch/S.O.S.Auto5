@@ -46,7 +46,7 @@ class _MeVareScreenState extends State<MeVareScreen> {
           : 'Tu ubicación GPS actual';
 
   // Catálogo de motivos, soluciones paso a paso y categoría de colaborador asociada
-  final List> _motivosVarada = [
+  final List _motivosVarada = [
     {
       'id': 'llanta',
       'titulo': 'Llanta',
