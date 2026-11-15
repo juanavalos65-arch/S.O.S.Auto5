@@ -214,7 +214,7 @@ class _MeVareScreenState extends State<MeVareScreen> {
   Map<String, dynamic> get _motivoActual =>
       _motivosVarada.firstWhere((m) => m['id'] == _motivoSeleccionadoId);
 
-  List> get _colaboradoresFiltrados {
+  List get _colaboradoresFiltrados {
     final String catBuscada = _motivoActual['categoriaColaborador'] as String;
     final filtrados = _directorioColaboradores.where((col) {
       final cats = col['categorias'] as List<String>;
