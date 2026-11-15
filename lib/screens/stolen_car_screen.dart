@@ -33,7 +33,7 @@ class _StolenCarScreenState extends State<StolenCarScreen> {
   String _recuperadoPor = 'Policía Nacional / Plan Candado';
 
   // Bitácora en Modo Simulacro
-  final List> _bitacoraSimulacro = [];
+  final List _bitacoraSimulacro = [];
 
   String get _placaActiva =>
       (widget.placaRegistrada != null && widget.placaRegistrada!.trim().isNotEmpty)
