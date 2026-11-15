@@ -29,7 +29,7 @@ class _EstoyEnPeligroScreenState extends State<EstoyEnPeligroScreen> {
   Timer? _timerVentana;
 
   // Bitácora de eventos en Modo Simulacro
-  final List> _bitacoraSimulacro = [];
+  final List _bitacoraSimulacro = [];
 
   String get _placaActiva =>
       (widget.placaRegistrada != null && widget.placaRegistrada!.trim().isNotEmpty)
