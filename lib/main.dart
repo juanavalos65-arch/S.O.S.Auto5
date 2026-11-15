@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/main_screen.dart';
+import 'screens/home_screen.dart'; // Si home_screen.dart está directo en lib/, cambia esta línea a: import 'home_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ class SosAutoApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F172A)),
         useMaterial3: true,
       ),
-      home: const MainScreen(),
+      home: const HomeScreen(),
     );
   }
 }
