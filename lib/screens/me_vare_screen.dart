@@ -154,7 +154,7 @@ class _MeVareScreenState extends State<MeVareScreen> {
   ];
 
   // Directorio de anunciantes/colaboradores ordenados por ubicación y categoría
-  final List> _directorioColaboradores = [
+  final List _directorioColaboradores = [
     {
       'nombre': 'Grúas Express 24/7',
       'categorias': ['Grúas 24 Horas', 'Grúas y Frenos', 'Mecánica / Grúas', 'Suministro Combustible / Grúa'],
