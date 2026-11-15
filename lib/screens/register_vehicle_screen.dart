@@ -450,7 +450,7 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
                   color: primaryColor,
                 ),
                 DropdownButtonFormField<String>(
-                  initialValue: _selectedVehicleType,
+                  initialValue: _selectedVehicleCountry,
                   decoration: _inputDecoration(
                     label: 'Tipo de vehículo *',
                     icon: Icons.commute,
