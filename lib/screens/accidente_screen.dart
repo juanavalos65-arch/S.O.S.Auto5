@@ -53,7 +53,7 @@ class _AccidenteScreenState extends State<AccidenteScreen> {
           ? widget.pinCancelacion!.trim()
           : '1234';
 
-  final List> _tiposAccidente = [
+  final List _tiposAccidente = [
     {
       'id': 'leve',
       'titulo': 'Choque leve',
