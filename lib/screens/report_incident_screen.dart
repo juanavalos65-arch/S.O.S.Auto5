@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Repositorio en memoria compartible con el banner rotativo de HomeScreen
 class NovedadesViaStore {
-  static final List> novedadesActivas = [
+  static final List novedadesActivas = [
     {
       'id': 'nov-1',
       'tipo': 'Cierre vial',
@@ -57,7 +57,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
   String _tipoNovedadSeleccionada = 'Cierre vial';
   bool _publicarEnBanner = true;
 
-  final List> _tiposNovedad = [
+  final List _tiposNovedad = [
     {
       'titulo': 'Cierre vial',
       'icono': Icons.block,
