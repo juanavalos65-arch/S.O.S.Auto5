@@ -120,7 +120,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
     return encontrado['icono'] as IconData;
   }
 
-  List> get _novedadesFiltradas {
+  List get _novedadesFiltradas {
     if (_filtroCategoria == 'Todas') {
       return NovedadesViaStore.novedadesActivas;
     }
