@@ -332,7 +332,7 @@ class _AgenteTransitoScreenState extends State<AgenteTransitoScreen> {
     },
   };
 
-  final List> _abogadosTransito = [
+  final List _abogadosTransito = [
     {
       'nombre': 'Dr. Carlos Andrés Mejía • Defensa Vial 24/7',
       'especialidad': 'Impugnación de comparendos, retenes e inmovilizaciones',
