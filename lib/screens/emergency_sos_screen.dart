@@ -46,7 +46,7 @@ class _EstoyEnPeligroScreenState extends State<EstoyEnPeligroScreen> {
           ? widget.ciudadActual!.trim()
           : 'GPS Simulado en Vivo (6.2442° N, 75.5812° W)';
 
-  final List> _motivosPeligro = [
+  final List _motivosPeligro = [
     {
       'id': 'agresion',
       'titulo': 'Me están agrediendo',
