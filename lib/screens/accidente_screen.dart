@@ -128,7 +128,7 @@ class _AccidenteScreenState extends State<AccidenteScreen> {
     },
   ];
 
-  final List> _colaboradoresAccidente = [
+  final List _colaboradoresAccidente = [
     {
       'nombre': 'Ambulancias Médicas Vital 24/7',
       'categorias': ['Ambulancias y Asistencia Médica'],
