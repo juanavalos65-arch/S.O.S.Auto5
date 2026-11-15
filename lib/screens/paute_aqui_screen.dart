@@ -231,7 +231,7 @@ class _PauteAquiScreenState extends State<PauteAquiScreen> {
         'SOS-TEST-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}-${Random().nextInt(900) + 100}';
 
     final Map<String, dynamic>? resultado =
-        await showModalBottomSheet>(
+        await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
