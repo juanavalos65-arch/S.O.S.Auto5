@@ -396,7 +396,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: const Color(0xFF283593),
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const TrafficStopScreen()),
+                    MaterialPageRoute(builder: (_) => const AgenteTransitoScreen()),
+  
                     ),
                   ),
                 ],
