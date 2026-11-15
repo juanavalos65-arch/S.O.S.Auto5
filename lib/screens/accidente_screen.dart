@@ -238,7 +238,7 @@ class _AccidenteScreenState extends State<AccidenteScreen> {
   Map<String, dynamic> get _accidenteActual =>
       _tiposAccidente.firstWhere((t) => t['id'] == _gravedadSeleccionada);
 
-  List> get _colaboradoresFiltrados {
+  List get _colaboradoresFiltrados {
     final String catBuscada = _accidenteActual['categoriaColaborador'] as String;
     final filtrados = _colaboradoresAccidente.where((col) {
       final cats = col['categorias'] as List<String>;
