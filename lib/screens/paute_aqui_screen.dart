@@ -20,7 +20,7 @@ class _PauteAquiScreenState extends State<PauteAquiScreen> {
   final TextEditingController _obsCtrl = TextEditingController();
 
   // Planes oficiales en COP
-  final List> _planes = [
+  final List _planes = [
     {'id': '1m', 'titulo': '1 Mes', 'base': 50000.0, 'dias': 30},
     {'id': '6m', 'titulo': '6 Meses', 'base': 250000.0, 'dias': 180},
     {'id': '1y', 'titulo': '1 Año', 'base': 500000.0, 'dias': 365},
