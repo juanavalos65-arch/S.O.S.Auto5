@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 class BottomActionGrid extends StatelessWidget {
   const BottomActionGrid({super.key});
 
-  static const List> _botones = [
-    {
-      'titulo': 'Registro',
+  static const List _botones = [    'titulo': 'Registro',
       'icono': Icons.app_registration,
       'color': Color(0xFF1E40AF),
       'bgColor': Color(0xFFDBEAFE),
