@@ -366,8 +366,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: const Color(0xFF8E0000),
                     onTap: () => Navigator.push(
                       context,
-                    MaterialPageRoute(builder: (_) => const EstoyEnPeligroScreen()),  ,
-                    ),
+                    ,  ,
+                   MaterialPageRoute(builder: (_) => const EstoyEnPeligroScreen()),
+ ),
                   ),
                   _buildModuloBoton(
                     titulo: 'Robo de auto',
