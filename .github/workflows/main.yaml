@@ -2,13 +2,12 @@ name: Build S.O.S. Auto Suite
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build Android APK (Release)
     runs-on: ubuntu-latest
 
     steps:
@@ -24,123 +23,36 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2'
+          flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
 
-      - name: Regenerar estructura Android v2 limpia
+      - name: Ensure Android project files without overwriting Firebase config
         run: |
-          rm -rf android
-          flutter create --platforms=android --org com.sosauto --project-name sos_auto5 .
+          if [ ! -f "android/app/src/main/AndroidManifest.xml" ]; then
+            cp android/app/google-services.json /tmp/google-services.json 2>/dev/null || true
+            cp android/app/build.gradle /tmp/app-build.gradle 2>/dev/null || true
+            cp android/settings.gradle /tmp/settings.gradle 2>/dev/null || true
+            flutter create . --org ge.sosauto --project-name app --platforms android
+            cp /tmp/google-services.json android/app/google-services.json 2>/dev/null || true
+            cp /tmp/app-build.gradle android/app/build.gradle 2>/dev/null || true
+            cp /tmp/settings.gradle android/settings.gradle 2>/dev/null || true
+          fi
 
-      - name: Actualizar Kotlin a 1.9.22 y configurar permisos en AndroidManifest
+      - name: Configurar minSdkVersion 23 para Firebase
         run: |
-          if [ -f "android/build.gradle" ]; then
-            sed -i "s/ext.kotlin_version = '[^']*'/ext.kotlin_version = '1.9.22'/g" android/build.gradle
-            sed -i 's/ext.kotlin_version = "[^"]*"/ext.kotlin_version = "1.9.22"/g' android/build.gradle
-          fi
-          if [ -f "android/settings.gradle" ]; then
-            sed -i 's/org.jetbrains.kotlin.android" version "[^"]*"/org.jetbrains.kotlin.android" version "1.9.22"/g' android/settings.gradle
-          fi
-          MANIFEST="android/app/src/main/AndroidManifest.xml"
-          sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>\n    <application|' "$MANIFEST"
-          sed -i 's|android:label="[^"]*"|android:label="S.O.S. Auto"|' "$MANIFEST"
+          find android/ -type f \( -name "build.gradle" -o -name "build.gradle.kts" \) -exec sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' {} +
+          find android/ -type f \( -name "build.gradle" -o -name "build.gradle.kts" \) -exec sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 23/g' {} +
+          find android/ -type f \( -name "build.gradle" -o -name "build.gradle.kts" \) -exec sed -i 's/minSdkVersion 21/minSdkVersion 23/g' {} +
 
-      - name: Install dependencies
+      - name: Get Flutter dependencies
         run: flutter pub get
-
-      - name: Verify static code analysis
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
-
-      - name: Generar icono oficial S.O.S. Auto (Sirena Bicolor)
-        run: |
-          rm -rf android/app/src/main/res/mipmap-anydpi-v26
-          python3 -c '
-          import os, zlib, struct, math
-
-          def render_icon(size, path):
-              raw = bytearray()
-              for y in range(size):
-                  raw.append(0)
-                  ny = (y / (size - 1)) * 2.0 - 1.0
-                  for x in range(size):
-                      nx = (x / (size - 1)) * 2.0 - 1.0
-                      r, g, b, a = 13, 27, 42, 255
-
-                      dome_cx, dome_cy = 0.0, -0.22
-                      rx, ry = 0.24, 0.30
-                      in_dome_top = ((nx - dome_cx)/rx)**2 + ((ny - dome_cy)/ry)**2 <= 1.0 and ny <= -0.10
-                      in_dome_body = abs(nx) <= rx and -0.22 <= ny <= -0.02
-                      if in_dome_top or in_dome_body:
-                          if nx < 0:
-                              r, g, b = (255, 110, 100) if (-0.15 < nx < -0.06 and -0.36 < ny < -0.10) else (229, 57, 53)
-                          else:
-                              r, g, b = (120, 200, 255) if (0.06 < nx < 0.15 and -0.36 < ny < -0.10) else (30, 136, 229)
-                      elif abs(nx) <= 0.28 and -0.01 <= ny <= 0.06:
-                          r, g, b = 120, 144, 156
-                      else:
-                          ang = math.atan2(ny + 0.22, nx)
-                          dist = math.hypot(nx, ny + 0.22)
-                          if 0.34 <= dist <= 0.54 and ny <= -0.10:
-                              for target_ang in [-2.85, -2.35, -1.90, -1.57, -1.24, -0.79, -0.29]:
-                                  if abs(ang - target_ang) < 0.045:
-                                      r, g, b = (239, 83, 80) if nx < 0 else (66, 165, 245)
-
-                      if (0.02 <= nx <= 0.44 and 0.14 <= ny <= 0.21) or (0.10 <= nx <= 0.36 and 0.09 <= ny <= 0.14):
-                          r, g, b = 255, 193, 7
-                      if -0.44 <= nx <= -0.02 and 0.18 <= ny <= 0.21:
-                          r, g, b = 255, 193, 7
-
-                      if -0.46 <= nx <= -0.02 and 0.30 <= ny <= 0.42:
-                          col = int((nx + 0.46) / 0.44 * 11)
-                          row = int((ny - 0.30) / 0.12 * 5)
-                          sos_grid = [
-                              "11101110111",
-                              "10001010100",
-                              "11101010111",
-                              "00101010001",
-                              "11101110111",
-                          ]
-                          if 0 <= row < 5 and 0 <= col < 11 and sos_grid[row][col] == "1":
-                              r, g, b = 255, 255, 255
-                      elif 0.04 <= nx <= 0.46 and 0.30 <= ny <= 0.42:
-                          col = int((nx - 0.04) / 0.42 * 15)
-                          row = int((ny - 0.30) / 0.12 * 5)
-                          auto_grid = [
-                              "010010101110111",
-                              "101010100100101",
-                              "111010100100101",
-                              "101010100100101",
-                              "101011100100111",
-                          ]
-                          if 0 <= row < 5 and 0 <= col < 15 and auto_grid[row][col] == "1":
-                              r, g, b = 255, 193, 7
-
-                      raw.extend([r, g, b, a])
-
-              def chunk(tag, data):
-                  return struct.pack("!I", len(data)) + tag + data + struct.pack("!I", zlib.crc32(tag + data) & 0xffffffff)
-
-              png = b"\x89PNG\r\n\x1a\n"
-              png += chunk(b"IHDR", struct.pack("!IIBBBBB", size, size, 8, 6, 0, 0, 0))
-              png += chunk(b"IDAT", zlib.compress(bytes(raw), 9))
-              png += chunk(b"IEND", b"")
-              os.makedirs(os.path.dirname(path), exist_ok=True)
-              with open(path, "wb") as f:
-                  f.write(png)
-
-          for folder, px in [("mipmap-mdpi", 48), ("mipmap-hdpi", 72), ("mipmap-xhdpi", 96), ("mipmap-xxhdpi", 144), ("mipmap-xxxhdpi", 192)]:
-              render_icon(px, f"android/app/src/main/res/{folder}/ic_launcher.png")
-          '
- 
-
 
       - name: Build Android APK (Release)
         run: flutter build apk --release
 
-      - name: Upload APK Artifact
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: sos-auto-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 14
