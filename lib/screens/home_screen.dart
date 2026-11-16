@@ -393,11 +393,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   _buildModuloBoton(
                     titulo: 'Agente de tránsito',
-                    icono: Icons.local_police,
+                    icono: Icons.local_police
                     color: const Color(0xFF283593),
                     onTap: () => Navigator.push(
                       context,
                     MaterialPageRoute(builder: (_) => const AgenteTransitoScreen()),
+
   
                     ),
                   ),
