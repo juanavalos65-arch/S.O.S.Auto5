@@ -52,7 +52,87 @@ jobs:
       - name: Verify static code analysis
         run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
 
-        
+      - name: Generar icono oficial S.O.S. Auto (Sirena Bicolor)
+        run: |
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
+          python3 -c '
+          import os, zlib, struct, math
+
+          def render_icon(size, path):
+              raw = bytearray()
+              for y in range(size):
+                  raw.append(0)
+                  ny = (y / (size - 1)) * 2.0 - 1.0
+                  for x in range(size):
+                      nx = (x / (size - 1)) * 2.0 - 1.0
+                      r, g, b, a = 13, 27, 42, 255
+
+                      dome_cx, dome_cy = 0.0, -0.22
+                      rx, ry = 0.24, 0.30
+                      in_dome_top = ((nx - dome_cx)/rx)**2 + ((ny - dome_cy)/ry)**2 <= 1.0 and ny <= -0.10
+                      in_dome_body = abs(nx) <= rx and -0.22 <= ny <= -0.02
+                      if in_dome_top or in_dome_body:
+                          if nx < 0:
+                              r, g, b = (255, 110, 100) if (-0.15 < nx < -0.06 and -0.36 < ny < -0.10) else (229, 57, 53)
+                          else:
+                              r, g, b = (120, 200, 255) if (0.06 < nx < 0.15 and -0.36 < ny < -0.10) else (30, 136, 229)
+                      elif abs(nx) <= 0.28 and -0.01 <= ny <= 0.06:
+                          r, g, b = 120, 144, 156
+                      else:
+                          ang = math.atan2(ny + 0.22, nx)
+                          dist = math.hypot(nx, ny + 0.22)
+                          if 0.34 <= dist <= 0.54 and ny <= -0.10:
+                              for target_ang in [-2.85, -2.35, -1.90, -1.57, -1.24, -0.79, -0.29]:
+                                  if abs(ang - target_ang) < 0.045:
+                                      r, g, b = (239, 83, 80) if nx < 0 else (66, 165, 245)
+
+                      if (0.02 <= nx <= 0.44 and 0.14 <= ny <= 0.21) or (0.10 <= nx <= 0.36 and 0.09 <= ny <= 0.14):
+                          r, g, b = 255, 193, 7
+                      if -0.44 <= nx <= -0.02 and 0.18 <= ny <= 0.21:
+                          r, g, b = 255, 193, 7
+
+                      if -0.46 <= nx <= -0.02 and 0.30 <= ny <= 0.42:
+                          col = int((nx + 0.46) / 0.44 * 11)
+                          row = int((ny - 0.30) / 0.12 * 5)
+                          sos_grid = [
+                              "11101110111",
+                              "10001010100",
+                              "11101010111",
+                              "00101010001",
+                              "11101110111",
+                          ]
+                          if 0 <= row < 5 and 0 <= col < 11 and sos_grid[row][col] == "1":
+                              r, g, b = 255, 255, 255
+                      elif 0.04 <= nx <= 0.46 and 0.30 <= ny <= 0.42:
+                          col = int((nx - 0.04) / 0.42 * 15)
+                          row = int((ny - 0.30) / 0.12 * 5)
+                          auto_grid = [
+                              "010010101110111",
+                              "101010100100101",
+                              "111010100100101",
+                              "101010100100101",
+                              "101011100100111",
+                          ]
+                          if 0 <= row < 5 and 0 <= col < 15 and auto_grid[row][col] == "1":
+                              r, g, b = 255, 193, 7
+
+                      raw.extend([r, g, b, a])
+
+              def chunk(tag, data):
+                  return struct.pack("!I", len(data)) + tag + data + struct.pack("!I", zlib.crc32(tag + data) & 0xffffffff)
+
+              png = b"\x89PNG\r\n\x1a\n"
+              png += chunk(b"IHDR", struct.pack("!IIBBBBB", size, size, 8, 6, 0, 0, 0))
+              png += chunk(b"IDAT", zlib.compress(bytes(raw), 9))
+              png += chunk(b"IEND", b"")
+              os.makedirs(os.path.dirname(path), exist_ok=True)
+              with open(path, "wb") as f:
+                  f.write(png)
+
+          for folder, px in [("mipmap-mdpi", 48), ("mipmap-hdpi", 72), ("mipmap-xhdpi", 96), ("mipmap-xxhdpi", 144), ("mipmap-xxxhdpi", 192)]:
+              render_icon(px, f"android/app/src/main/res/{folder}/ic_launcher.png")
+          '
+ 
 
 
       - name: Build Android APK (Release)
