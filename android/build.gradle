@@ -10,12 +10,20 @@ subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
+    beforeEvaluate { project ->
+        if (project.name != "app") {
+            project.ext.flutter = [
+                compileSdkVersion: 34,
+                minSdkVersion: 23,
+                targetSdkVersion: 34,
+                ndkVersion: "26.1.10909125"
+            ]
+        }
+    }
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {
-                if (compileSdkVersion == null) {
-                    compileSdkVersion 34
-                }
+                compileSdkVersion 34
             }
         }
     }
