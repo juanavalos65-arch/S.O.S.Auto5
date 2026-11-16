@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "176539763285",
+    "firebase_url": "https://sos-auto-18e1c-default-rtdb.firebaseio.com",
+    "project_id": "sos-auto-18e1c",
+    "storage_bucket": "sos-auto-18e1c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:176539763285:android:9760a74844a0f5b2220adc",
+        "android_client_info": {
+          "package_name": "ge.sosauto.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNWAWrTAtLjGyQWCXowi7hRGu1wc_IbyQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
