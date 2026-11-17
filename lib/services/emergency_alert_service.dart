@@ -78,7 +78,10 @@ class EmergencyAlertService {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () {
+              detenerVoz();
+              Navigator.of(ctx).pop();
+            },
             child: const Text(
               'ENTENDIDO',
               style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
@@ -87,5 +90,12 @@ class EmergencyAlertService {
         ],
       ),
     );
+  }
+
+  /// Detiene cualquier alerta sonora o anuncio de voz activo
+  static Future<void> detenerVoz() async {
+    try {
+      await HapticFeedback.selectionClick();
+    } catch (_) {}
   }
 }
