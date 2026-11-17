@@ -86,23 +86,35 @@ class EmergencyAlertService {
     );
   }
 
-  /// Alias compatible con las llamadas desde stolen_car_screen.dart
+  /// Acepta todos los campos del vehículo enviados desde stolen_car_screen.dart
   static Future<void> alertarRoboVehiculo({
     BuildContext? context,
     String placa = '',
     String plate = '',
-    String descripcion = 'Vehículo reportado como robado',
+    String tipoVehiculo = '',
+    String marca = '',
+    String modelo = '',
+    String color = '',
+    String descripcion = '',
     String ubicacion = '',
+    String nombrePropietario = '',
+    String telefono = '',
   }) async {
     await HapticFeedback.heavyImpact();
     await SystemSound.play(SystemSoundType.alert);
+
     final String placaFinal = placa.isNotEmpty ? placa : plate;
+    final detalles = [tipoVehiculo, marca, modelo, color, descripcion, ubicacion]
+        .where((e) => e.trim().isNotEmpty)
+        .join(' • ');
+
     if (context != null && context.mounted) {
       await triggerProximityAlarm(
         context: context,
         alertType: 'robo',
         plate: placaFinal,
-        vehicleDescription: ubicacion.isNotEmpty ? '$descripcion - $ubicacion' : descripcion,
+        vehicleDescription:
+            detalles.isNotEmpty ? detalles : 'Vehículo reportado como robado',
       );
     }
   }
