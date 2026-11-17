@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class EmergencyAlertService {
-  /// Activa una alerta sonora y visual de proximidad para vehículos cercanos
-  /// cuando se reporta 'robo' o 'peligro'.
   static Future<void> triggerProximityAlarm({
     required BuildContext context,
-    required String alertType, // 'robo' o 'peligro'
+    required String alertType,
     required String plate,
     String vehicleDescription = 'Vehículo registrado en S.O.S. Auto',
   }) async {
-    // 1. Vibración de alerta crítica
     await HapticFeedback.heavyImpact();
-
-    // 2. Sonido de alerta del sistema
     await SystemSound.play(SystemSoundType.alert);
 
     final bool isTheft = alertType.toLowerCase() == 'robo';
@@ -26,7 +21,6 @@ class EmergencyAlertService {
 
     if (!context.mounted) return;
 
-    // 3. Banner de alerta de alta visibilidad en pantalla
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -92,7 +86,27 @@ class EmergencyAlertService {
     );
   }
 
-  /// Detiene cualquier alerta sonora o anuncio de voz activo
+  /// Alias compatible con las llamadas desde stolen_car_screen.dart
+  static Future<void> alertarRoboVehiculo({
+    BuildContext? context,
+    String placa = '',
+    String plate = '',
+    String descripcion = 'Vehículo reportado como robado',
+    String ubicacion = '',
+  }) async {
+    await HapticFeedback.heavyImpact();
+    await SystemSound.play(SystemSoundType.alert);
+    final String placaFinal = placa.isNotEmpty ? placa : plate;
+    if (context != null && context.mounted) {
+      await triggerProximityAlarm(
+        context: context,
+        alertType: 'robo',
+        plate: placaFinal,
+        vehicleDescription: ubicacion.isNotEmpty ? '$descripcion - $ubicacion' : descripcion,
+      );
+    }
+  }
+
   static Future<void> detenerVoz() async {
     try {
       await HapticFeedback.selectionClick();
