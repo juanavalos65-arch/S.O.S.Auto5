@@ -86,7 +86,7 @@ class EmergencyAlertService {
     );
   }
 
-  /// Acepta todos los campos del vehículo enviados desde stolen_car_screen.dart
+  /// Incluye ciudad y todos los campos del reporte de robo
   static Future<void> alertarRoboVehiculo({
     BuildContext? context,
     String placa = '',
@@ -94,9 +94,15 @@ class EmergencyAlertService {
     String tipoVehiculo = '',
     String marca = '',
     String modelo = '',
+    String anio = '',
     String color = '',
-    String descripcion = '',
+    String ciudad = '',
+    String sector = '',
+    String barrio = '',
+    String direccion = '',
     String ubicacion = '',
+    String descripcion = '',
+    String recompensa = '',
     String nombrePropietario = '',
     String telefono = '',
   }) async {
@@ -104,9 +110,16 @@ class EmergencyAlertService {
     await SystemSound.play(SystemSoundType.alert);
 
     final String placaFinal = placa.isNotEmpty ? placa : plate;
-    final detalles = [tipoVehiculo, marca, modelo, color, descripcion, ubicacion]
-        .where((e) => e.trim().isNotEmpty)
-        .join(' • ');
+    final detalles = [
+      tipoVehiculo,
+      marca,
+      modelo,
+      color,
+      ciudad,
+      sector,
+      ubicacion,
+      descripcion,
+    ].where((e) => e.trim().isNotEmpty).join(' • ');
 
     if (context != null && context.mounted) {
       await triggerProximityAlarm(
