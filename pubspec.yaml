@@ -17,8 +17,9 @@ dependencies:
   firebase_messaging: ^15.0.2
   supabase_flutter: ^2.5.6
 
-  # Mapa Interactivo y Geolocalización
-  google_maps_flutter: ^2.7.0
+  # Mapa Interactivo OpenStreetMap y Geolocalización
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
   geolocator: ^12.0.0
 
   # Seguridad (PIN / Biometría) y Almacenamiento Cifrado
@@ -36,3 +37,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/
+    - assets/images/
