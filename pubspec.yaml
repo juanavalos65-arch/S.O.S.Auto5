@@ -28,7 +28,7 @@ dependencies:
 
   # Audio de Sirena, Voz, Utilidades y Pasarela Wompi
   audioplayers: ^6.1.0
-  flutter_tts: ^4.0.2
+  flutter_tts: 3.8.5
   url_launcher: ^6.3.0
   cupertino_icons: ^1.0.8
 
