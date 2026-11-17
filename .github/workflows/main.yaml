@@ -32,6 +32,17 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Regenerar estructura Android V2 y Web
+        run: |
+          rm -rf android web
+          flutter create . --org ge.sosauto --project-name sos_auto5 --platforms=android,web
+
+      - name: Configurar permisos de GPS, Internet y minSdk 23 en Android
+        run: |
+          sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' android/app/build.gradle || true
+          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 23/g' android/app/build.gradle || true
+          sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"\/>\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"\/>\n    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"\/>\n    <uses-permission android:name="android.permission.VIBRATE"\/>\n    <application/' android/app/src/main/AndroidManifest.xml
+
       - name: Instalar dependencias de Flutter
         run: flutter pub get
 
