@@ -37,10 +37,54 @@ jobs:
           rm -rf android web
           flutter create . --org ge.sosauto --project-name sos_auto5 --platforms=android,web
 
+      - name: Generar icono oficial S.O.S. Auto (Android y Web iPhone)
+        run: |
+          python3 -m pip install --quiet Pillow
+          python3 - << 'EOF'
+          import os
+          from PIL import Image, ImageDraw
+
+          def crear_icono(size):
+              img = Image.new('RGBA', (size, size), (211, 47, 47, 255))
+              draw = ImageDraw.Draw(img)
+              # Silueta de vehículo blanco
+              m = int(size * 0.20)
+              draw.rounded_rectangle([m, int(size*0.42), size-m, int(size*0.72)], radius=int(size*0.08), fill=(255, 255, 255, 255))
+              draw.rounded_rectangle([int(size*0.28), int(size*0.28), int(size*0.72), int(size*0.46)], radius=int(size*0.06), fill=(255, 255, 255, 255))
+              # Baliza de emergencia amarilla superior
+              draw.rounded_rectangle([int(size*0.40), int(size*0.16), int(size*0.60), int(size*0.26)], radius=int(size*0.03), fill=(255, 193, 7, 255))
+              # Faros rojos
+              draw.ellipse([int(size*0.25), int(size*0.52), int(size*0.36), int(size*0.63)], fill=(211, 47, 47, 255))
+              draw.ellipse([int(size*0.64), int(size*0.52), int(size*0.75), int(size*0.63)], fill=(211, 47, 47, 255))
+              return img
+
+          # Iconos Android
+          android_sizes = [
+              ('mipmap-mdpi', 48),
+              ('mipmap-hdpi', 72),
+              ('mipmap-xhdpi', 96),
+              ('mipmap-xxhdpi', 144),
+              ('mipmap-xxxhdpi', 192),
+          ]
+          for folder, s in android_sizes:
+              path = f'android/app/src/main/res/{folder}'
+              os.makedirs(path, exist_ok=True)
+              crear_icono(s).save(f'{path}/ic_launcher.png')
+
+          # Iconos Web / PWA para iPhone 13
+          os.makedirs('web/icons', exist_ok=True)
+          crear_icono(192).save('web/icons/Icon-192.png')
+          crear_icono(512).save('web/icons/Icon-512.png')
+          crear_icono(192).save('web/icons/Icon-maskable-192.png')
+          crear_icono(512).save('web/icons/Icon-maskable-512.png')
+          crear_icono(64).save('web/favicon.png')
+          EOF
+
       - name: Configurar permisos de GPS, Internet y minSdk 23 en Android
         run: |
           sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' android/app/build.gradle || true
           sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 23/g' android/app/build.gradle || true
+          sed -i 's/android:label="sos_auto5"/android:label="S.O.S. Auto"/g' android/app/src/main/AndroidManifest.xml
           sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"\/>\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"\/>\n    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"\/>\n    <uses-permission android:name="android.permission.VIBRATE"\/>\n    <application/' android/app/src/main/AndroidManifest.xml
 
       - name: Instalar dependencias de Flutter
