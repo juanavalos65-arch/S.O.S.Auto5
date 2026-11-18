@@ -298,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'Agente tránsito',
                       Icons.local_police,
                       const Color(0xFF283593),
-                      () => _openScreen(const AgrnteTransitoScreen()),
+                      () => _openScreen(const AgenteTransitoScreen()),
                     ),
                   ],
                 ),
