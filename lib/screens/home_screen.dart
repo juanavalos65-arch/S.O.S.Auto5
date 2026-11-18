@@ -280,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'Estoy en peligro',
                       Icons.sos,
                       const Color(0xFF8E0000),
-                      () => _openScreen(const EmergencySosScreen()),
+                      () => _openScreen(const EmergencySOSScreen()),
                     ),
                     _buildActionButton(
                       'Robo de auto',
@@ -298,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'Agente tránsito',
                       Icons.local_police,
                       const Color(0xFF283593),
-                      () => _openScreen(const TrafficStopScreen()),
+                      () => _openScreen(const AgrnteTransitoScreen()),
                     ),
                   ],
                 ),
