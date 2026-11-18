@@ -280,7 +280,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       'Estoy en peligro',
                       Icons.sos,
                       const Color(0xFF8E0000),
-                      () => _openScreen(const EmergencySOSScreen()),
+                     () => _openScreen(const Scaffold(body: Center(child: Text('Emergencia SOS')))),
+                      
                     ),
                     _buildActionButton(
                       'Robo de auto',
