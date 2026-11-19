@@ -1,5 +1,5 @@
 name: sos_auto5
-description: "S.O.S. Auto - Asistencia vial, emergencias y red de seguridad vehicular."
+description: "S.O.S. Auto - Red de asistencia vial y seguridad vehicular."
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,45 +9,39 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # Backend, Base de Datos y Notificaciones Push
-  firebase_core: ^3.1.1
-  cloud_firestore: ^5.0.2
-  firebase_auth: ^5.1.1
-  firebase_messaging: ^15.0.2
-  supabase_flutter: ^2.5.6
-
-  # Mapa Interactivo OpenStreetMap y Geolocalización
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
-  geolocator: ^12.0.0
-
-  # Almacenamiento Cifrado y Biometría
-  local_auth: ^2.2.0
-  flutter_secure_storage: ^9.2.2
-
-  # Audio de Sirena, Voz, Utilidades y Pasarela Wompi
-  audioplayers: ^6.1.0
-  flutter_tts: 3.8.5
-  url_launcher: ^6.3.0
-  cupertino_icons: ^1.0.8
+  geolocator: ^13.0.1
+  url_launcher: ^6.3.1
+  shared_preferences: ^2.3.2
+  http: ^1.2.2
+  intl: ^0.19.0
+  local_auth: ^2.3.0
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  flutter_launcher_icons: ^0.14.3
+  flutter_launcher_icons: ^0.14.4
 
 flutter_launcher_icons:
-  android: true
-  ios: true
+  android: "launcher_icon"
+  ios: false
   image_path: "lib/widget/IMG-20261118-WA5334.png"
-  adaptive_icon_background: "#0B192C"
-  adaptive_icon_foreground: "lib/widget/IMG-20261118-WA5334.png"
   min_sdk_android: 21
-  remove_alpha_ios: true
+  adaptive_icon_background: "#D32F2F"
+  adaptive_icon_foreground: "lib/widget/IMG-20261118-WA5334.png"
+  web:
+    generate: true
+    image_path: "lib/widget/IMG-20261118-WA5334.png"
+    background_color: "#D32F2F"
+    theme_color: "#D32F2F"
 
 flutter:
   uses-material-design: true
   assets:
-    - lib/widget/IMG-20261118-WA5334.png
+    - lib/widget/
