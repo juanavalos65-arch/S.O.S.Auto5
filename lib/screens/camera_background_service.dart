@@ -34,9 +34,10 @@ Future initializeBackgroundService() async {
     importance: Importance.high,
   );
 
-  await notifications
-      .resolvePlatformSpecificImplementation()
-      ?.createNotificationChannel(channel);
+    final androidPlugin = notifications.resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>();
+  await androidPlugin?.createNotificationChannel(channel);
+
 
   await service.configure(
     androidConfiguration: AndroidConfiguration(
