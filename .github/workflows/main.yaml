@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   build-android-and-web:
@@ -32,18 +30,87 @@ jobs:
           channel: 'stable'
           cache: false
 
-      - name: Regenerar estructura Android V2 y Web
+      - name: Regenerar estructura Android V2 y Web con Manifest completo
         run: |
+          [ -f android/app/google-services.json ] && cp android/app/google-services.json /tmp/google-services.json || true
           rm -rf android web
           flutter create . --org ge.sosauto --project-name sos_auto5 --platforms=android,web
-
-      - name: Configurar permisos de GPS, Internet y minSdk 23 en Android
-        run: |
+          if [ -f /tmp/google-services.json ]; then
+            cp /tmp/google-services.json android/app/google-services.json
+          fi
           sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' android/app/build.gradle || true
           sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 23/g' android/app/build.gradle || true
           sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' android/app/build.gradle.kts || true
-          sed -i 's/android:label="sos_auto5"/android:label="S.O.S. Auto"/g' android/app/src/main/AndroidManifest.xml
-          sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"\/>\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"\/>\n    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"\/>\n    <uses-permission android:name="android.permission.VIBRATE"\/>\n    <application/' android/app/src/main/AndroidManifest.xml
+
+          cat << 'EOF' > android/app/src/main/AndroidManifest.xml
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools">
+
+              <uses-permission android:name="android.permission.INTERNET"/>
+              <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+              <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+              <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+              <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+              <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+              <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+              <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+              <uses-permission android:name="android.permission.WAKE_LOCK"/>
+              <uses-permission android:name="android.permission.VIBRATE"/>
+              <uses-permission android:name="android.permission.CAMERA"/>
+              <uses-permission android:name="android.permission.CALL_PHONE"/>
+
+              <queries>
+                  <intent>
+                      <action android:name="android.intent.action.VIEW" />
+                      <data android:scheme="https" />
+                  </intent>
+                  <intent>
+                      <action android:name="android.intent.action.DIAL" />
+                      <data android:scheme="tel" />
+                  </intent>
+                  <intent>
+                      <action android:name="android.intent.action.TTS_SERVICE" />
+                  </intent>
+                  <package android:name="com.whatsapp" />
+                  <package android:name="com.whatsapp.w4b" />
+              </queries>
+
+              <application
+                  android:label="S.O.S. Auto"
+                  android:name="${applicationName}"
+                  android:icon="@mipmap/ic_launcher">
+
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:launchMode="singleTop"
+                      android:taskAffinity=""
+                      android:theme="@style/LaunchTheme"
+                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+                      android:hardwareAccelerated="true"
+                      android:windowSoftInputMode="adjustResize">
+                      <meta-data
+                        android:name="io.flutter.embedding.android.NormalTheme"
+                        android:resource="@style/NormalTheme"
+                        />
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+
+                  <service
+                      android:name="id.flutter.flutter_background_service.BackgroundService"
+                      android:foregroundServiceType="location"
+                      android:exported="false"
+                      tools:replace="android:exported" />
+
+                  <meta-data
+                      android:name="flutterEmbedding"
+                      android:value="2" />
+              </application>
+          </manifest>
+          EOF
 
       - name: Instalar dependencias de Flutter
         run: flutter pub get
@@ -67,20 +134,16 @@ jobs:
               img.resize((64, 64), Image.LANCZOS).save('web/favicon.png')
           EOF
 
-      # 1. COMPILAR APK (Para pruebas directas en Android)
       - name: Compilar Android APK Release
         run: flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols
 
-      # 2. COMPILAR AAB (Para subir a Google Play Console)
       - name: Compilar Android App Bundle (AAB)
         run: flutter build appbundle --release --obfuscate --split-debug-info=build/app/outputs/symbols
 
-      # 3. COMPILAR WEB (Para abrir en Safari de iPhone 13)
       - name: Compilar versión Web (PWA para iPhone)
         run: flutter build web --release --base-href "/S.O.S.Auto5/"
 
-      # PUBLICAR APK Y AAB EN RELEASES (Sin consumir cuota de Artifacts)
-      - name: Publicar APK y AAB en Releases
+      - name: Publicar APK, AAB y Web en Releases
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
@@ -90,24 +153,3 @@ jobs:
             build/app/outputs/bundle/release/app-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # PREPARAR DESPLIEGUE EN GITHUB PAGES
-      - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Subir paquete Web a GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'build/web'
-
-  deploy-iphone-web:
-    name: Publicar Link Web para iPhone
-    needs: build-android-and-web
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Desplegar en GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
