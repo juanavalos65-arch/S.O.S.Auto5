@@ -81,20 +81,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final List items = _buildBaseBanners();
 
     // 1. Reportes locales en memoria de NovedadesViaStore (si existen)
-    try {
-      for (final item in NovedadesViaStore.items) {
-        final titulo = item.titulo.toString();
-        final detalle = item.ubicacion.toString();
-        if (titulo.isNotEmpty) {
-          items.add({
-            'tag': 'NOVEDAD EN LA VÍA — REPORTE ACTIVO',
-            'title': detalle.isNotEmpty ? '$titulo · $detalle' : titulo,
-            'color': const Color(0xFFE65100),
-            'icon': Icons.traffic,
-            'iconColor': Colors.white,
-            'route': 'incident',
-          });
-        }
+      /// Combina el eslogan oficial + Paute aquí + alertas/pautas verificadas en tiempo real
+  List _getCurrentBanners() {
+    final List items = _buildBaseBanners();
+
+    // Alertas y pautas verificadas en vivo desde Firestore
+    items.addAll(_liveStolenBanners);
+    items.addAll(_liveIncidentBanners);
+    items.addAll(_liveAdBanners);
+
+    return items;
+  }
+
       }
     } catch (_) {}
 
