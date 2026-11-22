@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -30,7 +30,7 @@ jobs:
         with:
           flutter-version: '3.27.4'
           channel: 'stable'
-          cache: true
+          cache: false
 
       - name: Regenerar estructura Android V2 y Web
         run: |
@@ -79,18 +79,17 @@ jobs:
       - name: Compilar versión Web (PWA para iPhone)
         run: flutter build web --release --base-href "/S.O.S.Auto5/"
 
-      # SUBIR ARTEFACTOS DESCARGABLES (APK + AAB)
-      - name: Subir APK descargable
-        uses: actions/upload-artifact@v4
+      # PUBLICAR APK Y AAB EN RELEASES (Sin consumir cuota de Artifacts)
+      - name: Publicar APK y AAB en Releases
+        uses: softprops/action-gh-release@v2
         with:
-          name: SOS-Auto-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Subir AAB descargable para Google Play
-        uses: actions/upload-artifact@v4
-        with:
-          name: SOS-Auto-AAB-PlayStore
-          path: build/app/outputs/bundle/release/app-release.aab
+          tag_name: v1.0.${{ github.run_number }}
+          name: S.O.S. Auto Build #${{ github.run_number }}
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # PREPARAR DESPLIEGUE EN GITHUB PAGES
       - name: Configurar GitHub Pages
