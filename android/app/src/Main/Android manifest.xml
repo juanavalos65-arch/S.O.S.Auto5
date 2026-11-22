@@ -1,10 +1,13 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permisos de red y ubicación -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <!-- ESTOS SON LOS QUE TE FALTABAN PARA LA CAMARA -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+
+    <!-- Permisos para servicio en segundo plano de fotodetecciones -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -12,16 +15,31 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
 
+    <!-- Permisos para cámara (evidencias) y llamadas de emergencia -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+
+    <!-- Visibilidad de apps externas (WhatsApp, llamadas, navegador y motor de voz TTS) -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+        <package android:name="com.whatsapp" />
+        <package android:name="com.whatsapp.w4b" />
+    </queries>
+
     <application
         android:label="S.O.S. Auto"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-
-        <!-- Descomentar cuando tengas tu API Key real de Google Maps
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="TU_API_KEY_DE_GOOGLE_MAPS"/>
-        -->
 
         <activity
             android:name=".MainActivity"
@@ -42,11 +60,12 @@
             </intent-filter>
         </activity>
 
-        <!-- SERVICIO EN SEGUNDO PLANO PARA CAMARAS -->
+        <!-- Servicio en segundo plano para alertas de fotodetecciones -->
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
             android:foregroundServiceType="location"
-            android:exported="false" />
+            android:exported="false"
+            tools:replace="android:exported" />
 
         <meta-data
             android:name="flutterEmbedding"
