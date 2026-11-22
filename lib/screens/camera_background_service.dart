@@ -27,7 +27,8 @@ Future<void> initializeBackgroundService() async {
       onStart: onStart,
       isForegroundMode: true,
       autoStart: true,
-      notificationId: 888,
+      foregroundServiceNotificationId: 888,
+
       initialNotificationTitle: 'S.O.S. Auto activo',
       initialNotificationContent: 'Vigilando cámaras en tu ruta',
       foregroundServiceNotificationId: 888,
