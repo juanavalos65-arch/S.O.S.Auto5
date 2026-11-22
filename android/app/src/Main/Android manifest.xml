@@ -1,74 +1,118 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+name: Build S.O.S. Auto Suite
 
-    <!-- Permisos de red y ubicación -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-    <!-- Permisos para servicio en segundo plano de fotodetecciones -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
-    <!-- Permisos para cámara (evidencias) y llamadas de emergencia -->
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.CALL_PHONE"/>
+jobs:
+  build-android-and-web:
+    name: Build APK, AAB y Web iPhone
+    runs-on: ubuntu-latest
 
-    <!-- Visibilidad de apps externas (WhatsApp, llamadas, navegador y motor de voz TTS) -->
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="https" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.DIAL" />
-            <data android:scheme="tel" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.TTS_SERVICE" />
-        </intent>
-        <package android:name="com.whatsapp" />
-        <package android:name="com.whatsapp.w4b" />
-    </queries>
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v4
 
-    <application
-        android:label="S.O.S. Auto"
-        android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:taskAffinity=""
-            android:theme="@style/LaunchTheme"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
-            <meta-data
-              android:name="io.flutter.embedding.android.NormalTheme"
-              android:resource="@style/NormalTheme"
-              />
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
+      - name: Configurar Flutter 3.27.4
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.4'
+          channel: 'stable'
+          cache: false
 
-        <!-- Servicio en segundo plano para alertas de fotodetecciones -->
-        <service
-            android:name="id.flutter.flutter_background_service.BackgroundService"
-            android:foregroundServiceType="location"
-            android:exported="false"
-            tools:replace="android:exported" />
+      - name: Regenerar estructura Android V2 y Web conservando Manifest y Firebase
+        run: |
+          [ -f android/app/src/main/AndroidManifest.xml ] && cp android/app/src/main/AndroidManifest.xml /tmp/AndroidManifest.xml || true
+          [ -f android/app/google-services.json ] && cp android/app/google-services.json /tmp/google-services.json || true
+          rm -rf android web
+          flutter create . --org ge.sosauto --project-name sos_auto5 --platforms=android,web
+          if [ -f /tmp/AndroidManifest.xml ]; then
+            cp /tmp/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+          fi
+          if [ -f /tmp/google-services.json ]; then
+            cp /tmp/google-services.json android/app/google-services.json
+          fi
+          sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' android/app/build.gradle || true
+          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 23/g' android/app/build.gradle || true
+          sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' android/app/build.gradle.kts || true
 
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
-    </application>
-</manifest>
+      - name: Instalar dependencias de Flutter
+        run: flutter pub get
+
+      - name: Generar icono oficial S.O.S. Auto (Android, iOS y Web iPhone)
+        run: |
+          dart run flutter_launcher_icons
+          python3 -m pip install --quiet Pillow
+          python3 - << 'EOF'
+          import os
+          from PIL import Image
+
+          src = 'lib/widget/IMG-20261118-WA5334.png'
+          if os.path.exists(src):
+              img = Image.open(src).convert('RGBA')
+              os.makedirs('web/icons', exist_ok=True)
+              img.resize((192, 192), Image.LANCZOS).save('web/icons/Icon-192.png')
+              img.resize((512, 512), Image.LANCZOS).save('web/icons/Icon-512.png')
+              img.resize((192, 192), Image.LANCZOS).save('web/icons/Icon-maskable-192.png')
+              img.resize((512, 512), Image.LANCZOS).save('web/icons/Icon-maskable-512.png')
+              img.resize((64, 64), Image.LANCZOS).save('web/favicon.png')
+          EOF
+
+      # 1. COMPILAR APK (Para pruebas directas en Android)
+      - name: Compilar Android APK Release
+        run: flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols
+
+      # 2. COMPILAR AAB (Para subir a Google Play Console)
+      - name: Compilar Android App Bundle (AAB)
+        run: flutter build appbundle --release --obfuscate --split-debug-info=build/app/outputs/symbols
+
+      # 3. COMPILAR WEB (Para abrir en Safari de iPhone 13)
+      - name: Compilar versión Web (PWA para iPhone)
+        run: flutter build web --release --base-href "/S.O.S.Auto5/"
+
+      # PUBLICAR APK Y AAB EN RELEASES (Sin consumir cuota de Artifacts)
+      - name: Publicar APK y AAB en Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: S.O.S. Auto Build #${{ github.run_number }}
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # PREPARAR DESPLIEGUE EN GITHUB PAGES
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Subir paquete Web a GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'build/web'
+
+  deploy-iphone-web:
+    name: Publicar Link Web para iPhone
+    needs: build-android-and-web
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
