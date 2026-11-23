@@ -40,9 +40,10 @@ class _HomeScreenState extends State<HomeScreen> {
   StreamSubscription? _incidentsSub;
   StreamSubscription? _adsSub;
 
-  List> _liveStolenBanners = [];
-  List> _liveIncidentBanners = [];
-  List> _liveAdBanners = [];
+  List _liveStolenBanners = [];
+List _liveIncidentBanners = [];
+List _liveAdBanners = [];
+
 
   RouteResult? _activeRoute;
   bool _searchingRoute = false;
