@@ -373,7 +373,8 @@ class _ListaNovedadesVigentes extends StatelessWidget {
 
         final ahora = DateTime.now();
         final docsVigentes = (snapshot.data?.docs ?? []).where((doc) {
-          final data = doc.data();
+          final data = doc.data() as Map<String, dynamic>;
+
           if (data['activo'] == false) return false;
           final bool esPermanente = data['esPermanente'] ?? false;
           if (esPermanente) return true;
@@ -401,7 +402,8 @@ class _ListaNovedadesVigentes extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           itemCount: docsVigentes.length,
           itemBuilder: (context, index) {
-            final doc = docsVigentes[index];
+            final data = doc.data() as Map<String, dynamic>;
+
             final data = doc.data();
             final bool esPermanente = data['esPermanente'] ?? false;
             final String tipo = data['tipo'] ?? 'Novedad vial';
