@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screens/home_screen.dart';
 import 'services/vehicle_session.dart';
 
@@ -16,11 +18,20 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(options: sosAutoFirebaseOptions);
+      if (kIsWeb) {
+        await Firebase.initializeApp(options: sosAutoFirebaseOptions);
+      } else {
+        await Firebase.initializeApp();
+      }
     }
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
   } catch (e) {
-    debugPrint('Firebase no inicializado aún: $e');
+    debugPrint('Error inicializando Firebase: $e');
   }
+
   await VehicleSession.load();
 
   runApp(const SosAutoApp());
