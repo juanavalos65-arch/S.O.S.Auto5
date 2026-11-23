@@ -342,7 +342,7 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
         .replaceAll(RegExp(r'[^A-Z0-9-]'), '');
 
     // Filtrar solo conductores adicionales que tengan algún dato escrito (100% opcional)
-    final List> validAdditionalDrivers = _additionalDrivers
+    final List validAdditionalDrivers = _additionalDrivers
 
         .where((d) => !d.isCompletelyEmpty)
         .map((d) => {
