@@ -663,3 +663,278 @@ class _HomeScreenState extends State<HomeScreen> {
                           MarkerLayer(
                             markers: [
                               
+                              ...camMarkers,
+                              Marker(
+                                point: _currentCenter,
+                                width: 40,
+                                height: 40,
+                                child: const Icon(
+                                  Icons.my_location,
+                                  color: Color(0xFF0D47A1),
+                                  size: 30,
+                                ),
+                              ),
+                              if (routePoints.isNotEmpty)
+                                Marker(
+                                  point: routePoints.last,
+                                  width: 40,
+                                  height: 40,
+                                  child: const Icon(
+                                    Icons.flag_circle,
+                                    color: Color(0xFF2E7D32),
+                                    size: 32,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      Positioned(
+                        right: 8,
+                        bottom: 8,
+                        child: FloatingActionButton.small(
+                          heroTag: 'gps_recenter_btn',
+                          backgroundColor: Colors.white,
+                          onPressed: _locating ? null : _initLocation,
+                          child: _locating
+                              ? const SizedBox(
+                                  width: 17,
+                                  height: 17,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Color(0xFF0D1B2A),
+                                  ),
+                                )
+                              : const Icon(Icons.gps_fixed, color: Color(0xFF0D1B2A)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              if (_activeRoute != null) ...[
+                const SizedBox(height: 5),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0A192F),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.route, color: Color(0xFFFBC02D), size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '${_activeRoute!.destinationName} · '
+                          '${_activeRoute!.distanceKm.toStringAsFixed(1)} km · '
+                          '${_activeRoute!.durationMin} min',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: _clearRoute,
+                        child: const Icon(Icons.close, color: Colors.white70, size: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 6),
+
+              GridView.count(
+                shrinkWrap: true,
+                crossAxisCount: 2,
+                mainAxisSpacing: 6,
+                crossAxisSpacing: 6,
+                childAspectRatio: 3.45,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildActionButton(
+                    'Registro',
+                    Icons.app_registration,
+                    const Color(0xFF1B4965),
+                    () => _openScreen(const RegisterVehicleScreen()),
+                  ),
+                  _buildActionButton(
+                    'Paute aquí',
+                    Icons.campaign,
+                    const Color(0xFF2E7D32),
+                    () => _openScreen(const PauteAquiScreen()),
+                  ),
+                  _buildActionButton(
+                    'Me varé',
+                    Icons.car_repair,
+                    const Color(0xFFEF6C00),
+                    () => _openScreen(const MeVareScreen()),
+                  ),
+                  _buildActionButton(
+                    'Accidente',
+                    Icons.car_crash,
+                    const Color(0xFFC62828),
+                    () => _openScreen(const AccidenteScreen()),
+                  ),
+                  _buildActionButton(
+                    'Estoy en peligro',
+                    Icons.sos,
+                    const Color(0xFF8E0000),
+                    () => _openScreen(const EmergencySOSScreen()),
+                  ),
+                  _buildActionButton(
+                    'Robo de auto',
+                    Icons.no_crash,
+                    const Color(0xFF4A148C),
+                    () => _openScreen(const StolenCarScreen()),
+                  ),
+                  _buildActionButton(
+                    'Novedades en vía',
+                    Icons.traffic,
+                    const Color(0xFFF57C00),
+                    () => _openScreen(const ReportIncidentScreen()),
+                  ),
+                  _buildActionButton(
+                    'Agente tránsito',
+                    Icons.local_police,
+                    const Color(0xFF283593),
+                    () => _openScreen(const TrafficStopScreen()),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
+          child: SizedBox(
+            height: 42,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF43A047),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () => _openScreen(const AlliesScreen()),
+              icon: const Icon(Icons.storefront, color: Colors.white, size: 19),
+              label: const Text(
+                'Aliados — Directorio de Asistencia y Servicios',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton(
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      onPressed: onTap,
+      child: Row(
+        children: [
+          Icon(icon, size: 19, color: Colors.white),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MarqueeBannerText extends StatefulWidget {
+  final String text;
+  const _MarqueeBannerText({super.key, required this.text});
+
+  @override
+  State<_MarqueeBannerText> createState() => _MarqueeBannerTextState();
+}
+
+class _MarqueeBannerTextState extends State<_MarqueeBannerText> {
+  final ScrollController _scrollController = ScrollController();
+  Timer? _scrollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startScrolling());
+  }
+
+  void _startScrolling() {
+    _scrollTimer = Timer.periodic(const Duration(milliseconds: 35), (_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      if (maxScroll <= 0) return;
+
+      final next = _scrollController.offset + 1.5;
+      if (next >= maxScroll) {
+        _scrollController.jumpTo(0);
+      } else {
+        _scrollController.jumpTo(next);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollTimer?.cancel();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 17,
+      child: ListView(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          Text(
+            '${widget.text}        •        ${widget.text}        ',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
