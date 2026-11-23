@@ -343,6 +343,7 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
 
     // Filtrar solo conductores adicionales que tengan algún dato escrito (100% opcional)
     final List> validAdditionalDrivers = _additionalDrivers
+
         .where((d) => !d.isCompletelyEmpty)
         .map((d) => {
               'name': d.nameController.text.trim(),
