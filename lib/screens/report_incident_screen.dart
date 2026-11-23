@@ -360,7 +360,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen>
 class _ListaNovedadesVigentes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>>(
+    return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('novedades_viales')
           .orderBy('creadaEn', descending: true)
