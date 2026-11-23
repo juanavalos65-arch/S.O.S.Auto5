@@ -52,7 +52,8 @@ List _liveAdBanners = [];
   Timer? _bannerTimer;
   bool _locating = false;
 
-  List> _buildBaseBanners() {
+  List _buildBaseBanners() {
+
     return [
       {
         'tag': 'S.O.S. AUTO — ASISTENCIA Y SEGURIDAD VIAL 24/7',
