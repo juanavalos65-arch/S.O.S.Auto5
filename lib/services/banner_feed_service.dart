@@ -37,7 +37,6 @@ class BannerFeedService {
     double? lng,
     String gravedad = '',
   }) async {
-    // QUITAMOS EL try/catch mudo para ver el error real
     await _collection.doc(id).set({
       'category': category,
       'tag': tag,
@@ -50,22 +49,21 @@ class BannerFeedService {
       'active': true,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-      'expiresAt': DateTime.now().add(const Duration(hours: 6)),
     }, SetOptions(merge: true));
-    print('✅ BANNER PUBLICADO: $id - $tag');
   }
 
   static Future deactivateAlert(String id) async {
-    await _collection.doc(id).set({
-      'active': false,
-      'resolvedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    try {
+      await _collection.doc(id).set({
+        'active': false,
+        'resolvedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (_) {}
   }
 
   static Stream watchActiveBanners() {
     return _collection
         .where('active', isEqualTo: true)
-        .orderBy('createdAt', descending: true)
         .limit(20)
         .snapshots()
         .map((snapshot) {
@@ -88,14 +86,14 @@ class BannerFeedService {
 
   static Color colorForCategory(String category) {
     if (category == 'stolen') return const Color(0xFFB71C1C);
-    if (category == 'incident') return const Color(0xFFB71C1C); // ROJO ACCIDENTE
+    if (category == 'incident') return const Color(0xFFB71C1C);
     if (category == 'road') return const Color(0xFFE65100);
     return const Color(0xFF1B5E20);
   }
 
   static IconData iconForCategory(String category) {
     if (category == 'stolen') return Icons.warning_amber_rounded;
-    if (category == 'incident') return Icons.car_crash; // ICONO ACCIDENTE
+    if (category == 'incident') return Icons.car_crash;
     if (category == 'road') return Icons.traffic;
     return Icons.storefront;
   }
