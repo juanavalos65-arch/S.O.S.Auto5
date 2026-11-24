@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/vehicle_session.dart';
-import 'banner_dinamico.dart';
+import '../services/banner_feed_service.dart';
 
 
 class RegisteredVehicleSummary {
