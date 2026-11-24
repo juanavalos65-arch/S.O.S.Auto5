@@ -26,7 +26,6 @@ class BannerFeedService {
     },
   ];
 
-  /// Publica una alerta en el banner en vivo (robo, novedad vial o pauta)
   static Future publishAlert({
     required String id,
     required String category,
@@ -34,34 +33,39 @@ class BannerFeedService {
     required String title,
     String city = '',
     String plate = '',
+    double? lat,
+    double? lng,
+    String gravedad = '',
   }) async {
-    try {
-      await _collection.doc(id).set({
-        'category': category,
-        'tag': tag,
-        'title': title,
-        'city': city,
-        'plate': plate,
-        'active': true,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    } catch (_) {}
+    // QUITAMOS EL try/catch mudo para ver el error real
+    await _collection.doc(id).set({
+      'category': category,
+      'tag': tag,
+      'title': title,
+      'city': city,
+      'plate': plate,
+      'lat': lat,
+      'lng': lng,
+      'gravedad': gravedad,
+      'active': true,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+      'expiresAt': DateTime.now().add(const Duration(hours: 6)),
+    }, SetOptions(merge: true));
+    print('✅ BANNER PUBLICADO: $id - $tag');
   }
 
-  /// Desactiva una alerta del banner (cuando se despeja la vía o se recupera el auto)
   static Future deactivateAlert(String id) async {
-    try {
-      await _collection.doc(id).set({
-        'active': false,
-        'resolvedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    } catch (_) {}
+    await _collection.doc(id).set({
+      'active': false,
+      'resolvedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
-  /// Stream en tiempo real para HomeScreen
   static Stream watchActiveBanners() {
     return _collection
         .where('active', isEqualTo: true)
+        .orderBy('createdAt', descending: true)
         .limit(20)
         .snapshots()
         .map((snapshot) {
@@ -77,8 +81,6 @@ class BannerFeedService {
           'title': data['title'] ?? '',
         };
       }).toList();
-
-      // Intercala siempre la invitación de pauta comercial si solo hay alertas
       live.add(defaultBanners.first);
       return live;
     });
@@ -86,12 +88,14 @@ class BannerFeedService {
 
   static Color colorForCategory(String category) {
     if (category == 'stolen') return const Color(0xFFB71C1C);
+    if (category == 'incident') return const Color(0xFFB71C1C); // ROJO ACCIDENTE
     if (category == 'road') return const Color(0xFFE65100);
     return const Color(0xFF1B5E20);
   }
 
   static IconData iconForCategory(String category) {
     if (category == 'stolen') return Icons.warning_amber_rounded;
+    if (category == 'incident') return Icons.car_crash; // ICONO ACCIDENTE
     if (category == 'road') return Icons.traffic;
     return Icons.storefront;
   }
