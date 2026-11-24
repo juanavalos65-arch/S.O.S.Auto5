@@ -10,6 +10,7 @@ import '../services/vehicle_session.dart';
 import '../services/banner_feed_service.dart';
 import '../widgets/banner_dinamico.dart';
 
+
 class AccidenteScreen extends StatefulWidget {
   const AccidenteScreen({super.key});
 
