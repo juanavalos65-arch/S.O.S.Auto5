@@ -23,32 +23,32 @@ class _AccidenteScreenState extends State<AccidenteScreen> {
   final TextEditingController _otherPlatesController = TextEditingController();
   final TextEditingController _detailsController = TextEditingController();
 
-  // Bitácora del modo simulacro
-  final List<String> _simulationLogs = <String>[];
+    // Bitácora del modo simulacro
+  final _simulationLogs = <String>[];
 
-  final List> _severityLevels = [
-    <String, dynamic>{
+  final List _severityLevels = [
+    {
       'id': 'Choque leve',
       'title': 'Choque leve (solo daños menores)',
       'subtitle': 'Sin heridos, vehículos movilizables',
       'icon': Icons.car_crash_outlined,
       'color': Colors.amber,
     },
-    <String, dynamic>{
+    {
       'id': 'Daños graves',
       'title': 'Daños graves al vehículo',
       'subtitle': 'Vehículo inmovilizado, requiere grúa',
       'icon': Icons.minor_crash,
       'color': Colors.deepOrange,
     },
-    <String, dynamic>{
+    {
       'id': 'Personas lesionadas',
       'title': 'Personas lesionadas',
       'subtitle': 'Se requiere ambulancia y atención médica',
       'icon': Icons.medical_services,
       'color': Colors.red,
     },
-    <String, dynamic>{
+    {
       'id': 'Con víctimas fatales',
       'title': 'Con víctimas fatales',
       'subtitle': 'Emergencia crítica - No mover escena',
@@ -57,26 +57,26 @@ class _AccidenteScreenState extends State<AccidenteScreen> {
     },
   ];
 
-  final List> _nearbyAllies = [
-    <String, String>{
+  final List _nearbyAllies = [
+    {
       'name': 'Ambulancias Vital SOS 24/7',
       'category': 'Ambulancia',
       'distance': '1.2 km',
       'phone': '123',
     },
-    <String, String>{
+    {
       'name': 'Grúas Cama Baja El Rápido',
       'category': 'Grúa',
       'distance': '2.4 km',
       'phone': '+57 300 555 0192',
     },
-    <String, String>{
+    {
       'name': 'Asesoría Legal Vial & Tránsito',
       'category': 'Abogado de Tránsito',
       'distance': '3.1 km',
       'phone': '+57 311 555 0148',
     },
-    <String, String>{
+    {
       'name': 'Taller Colisión & Latonería Express',
       'category': 'Latonería',
       'distance': '3.8 km',
@@ -84,12 +84,6 @@ class _AccidenteScreenState extends State<AccidenteScreen> {
     },
   ];
 
-  @override
-  void dispose() {
-    _countdownTimer?.cancel();
-    _otherPlatesController.dispose();
-    _detailsController.dispose();
-    super.dispose();
   }
 
   void _startEmergencyCountdown() {
