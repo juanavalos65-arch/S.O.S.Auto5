@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,11 +17,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     if (Firebase.apps.isEmpty) {
-      if (kIsWeb) {
-        await Firebase.initializeApp(options: sosAutoFirebaseOptions);
-      } else {
-        await Firebase.initializeApp();
-      }
+      await Firebase.initializeApp(options: sosAutoFirebaseOptions);
     }
     FirebaseFirestore.instance.settings = const Settings(
       persistenceEnabled: true,
