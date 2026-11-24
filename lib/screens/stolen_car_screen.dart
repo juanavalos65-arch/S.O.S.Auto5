@@ -6,7 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/vehicle_session.dart';
-import '../widget/banner_dinamico.dart';
+import 'banner_dinamico.dart';
+
 
 class RegisteredVehicleSummary {
   final String placa;
