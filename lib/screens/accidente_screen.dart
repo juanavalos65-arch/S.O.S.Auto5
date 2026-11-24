@@ -8,7 +8,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/vehicle_session.dart';
 import '../services/banner_feed_service.dart';
-import '../widgets/banner_dinamico.dart';
 
 
 class AccidenteScreen extends StatefulWidget {
@@ -188,7 +187,14 @@ class _AccidenteScreenState extends State<AccidenteScreen> {
 
   Future<void> _cancelOrStopAlert() async {
     _timer?.cancel();
-    BannerDinamico.quitarLocal('accidente_$_myPlate');
+    
+BannerFeedService.publishAlert(
+  id: 'accidente_$_myPlate',
+  category: 'road',
+  tag: 'ACCIDENTE EN LA VÍA',
+  title: '$_severity — Placa $_myPlate',
+  plate: _myPlate,
+);
 
     if (_accidentDocId != null && Firebase.apps.isNotEmpty) {
       unawaited(
