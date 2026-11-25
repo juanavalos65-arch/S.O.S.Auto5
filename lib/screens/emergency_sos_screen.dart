@@ -11,6 +11,8 @@ import '../services/banner_feed_service.dart';
 import '../services/emergency_alert_store.dart';
 import '../services/emergency_sound_service.dart';
 import '../services/vehicle_session.dart';
+import '../widge/boton_whatsapp_emergencia.dart';
+
 
 class EmergencySOSScreen extends StatefulWidget {
   const EmergencySOSScreen({super.key});
