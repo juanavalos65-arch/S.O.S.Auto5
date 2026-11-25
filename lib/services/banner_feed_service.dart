@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../widgets/banner_dinamico.dart';
+import '../widget/banner_dinamico.dart';
 
 class BannerFeedService {
   static final CollectionReference _collection =
