@@ -1,68 +1,45 @@
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class EmergencySoundService {
-  static final AudioPlayer _player = AudioPlayer();
+  static final FlutterTts _tts = FlutterTts();
+  static Timer? _alarmTimer;
   static bool _isPlaying = false;
-  static final Set<String> _alreadySounded = <String>{};
 
-  static Future<void> checkAndSound(List banners) async {
-    for (final b in banners) {
-      if (b is! Map) continue;
-      final String id = (b['id'] ?? '').toString();
-      final String category = (b['category'] ?? '').toString();
-
-      final bool isEmergency = category == 'incident' || category == 'stolen';
-      if (!isEmergency) continue;
-
-      if (_alreadySounded.contains(id)) continue;
-      _alreadySounded.add(id);
-
-      if (_alreadySounded.length > 50) _alreadySounded.clear();
-
-      await playSiren();
-      break;
-    }
-  }
-
-  static Future<void> playSiren() async {
+  static Future<void> startSiren({
+    String mensaje = '¡Alerta de emergencia S.O.S. Auto activada!',
+  }) async {
     if (_isPlaying) return;
     _isPlaying = true;
-    try {
-      // Vibración nativa de Flutter (funciona en todos los Android sin paquetes extra)
-      unawaited(() async {
-        for (int i = 0; i < 6; i++) {
-          if (!_isPlaying) break;
-          await HapticFeedback.heavyImpact();
-          await Future.delayed(const Duration(milliseconds: 500));
-        }
-      }());
 
-      await _player.setVolume(1.0);
-      await _player.setReleaseMode(ReleaseMode.stop);
-      await _player.play(AssetSource('sounds/sirena.mp3'));
+    await _tts.setLanguage('es-CO');
+    await _tts.setSpeechRate(0.55);
+    await _tts.setVolume(1.0);
+    await _tts.setPitch(1.2);
 
-      await Future.delayed(const Duration(seconds: 4));
-      if (_isPlaying) {
-        await _player.play(AssetSource('sounds/sirena.mp3'));
+    // Primera ejecución inmediata
+    await SystemSound.play(SystemSoundType.alert);
+    await HapticFeedback.heavyImpact();
+    await _tts.speak(mensaje);
+
+    // Repetición continua cada 3 segundos mientras la alerta siga activa
+    _alarmTimer?.cancel();
+    _alarmTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+      if (!_isPlaying) {
+        timer.cancel();
+        return;
       }
-    } catch (_) {}
-
-    Future.delayed(const Duration(seconds: 8), () {
-      stop();
+      await SystemSound.play(SystemSoundType.alert);
+      await HapticFeedback.heavyImpact();
+      await _tts.speak(mensaje);
     });
   }
 
-  static Future<void> stop() async {
+  static Future<void> stopSiren() async {
     _isPlaying = false;
-    try {
-      await _player.stop();
-    } catch (_) {}
-  }
-
-  static Future<void> testSound() async {
-    _alreadySounded.clear();
-    await playSiren();
+    _alarmTimer?.cancel();
+    _alarmTimer = null;
+    await _tts.stop();
   }
 }
