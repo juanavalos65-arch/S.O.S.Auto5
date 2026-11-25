@@ -18,12 +18,10 @@ class EmergencySoundService {
     await _tts.setVolume(1.0);
     await _tts.setPitch(1.2);
 
-    // Primera ejecución inmediata
     await SystemSound.play(SystemSoundType.alert);
     await HapticFeedback.heavyImpact();
     await _tts.speak(mensaje);
 
-    // Repetición continua cada 3 segundos mientras la alerta siga activa
     _alarmTimer?.cancel();
     _alarmTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
       if (!_isPlaying) {
@@ -36,10 +34,22 @@ class EmergencySoundService {
     });
   }
 
+  static Future<void> checkAndSound([dynamic alertas]) async {
+    if (alertas is List && alertas.isEmpty) {
+      await stop();
+      return;
+    }
+    await startSiren();
+  }
+
   static Future<void> stopSiren() async {
     _isPlaying = false;
     _alarmTimer?.cancel();
     _alarmTimer = null;
     await _tts.stop();
+  }
+
+  static Future<void> stop() async {
+    await stopSiren();
   }
 }
