@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/vehicle_session.dart';
+import '../widge/boton_whatsapp_emergencia.dart';
+
 
 class MeVareScreen extends StatefulWidget {
   const MeVareScreen({super.key});
