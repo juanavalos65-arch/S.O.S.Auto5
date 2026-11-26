@@ -37,6 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
   LatLng _currentCenter = const LatLng(6.2442, -75.5812);
   List _osmCameras = [];
   List _firestoreCameras = [];
+    List _medicalCenters = [];
+  List _mapAllies = [];
+
   StreamSubscription? _firestoreCamSub;
   StreamSubscription? _positionStreamSub;
 
