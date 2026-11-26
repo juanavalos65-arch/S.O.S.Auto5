@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screens/home_screen.dart';
 import 'services/vehicle_session.dart';
+import 'services/theft_alert_listener.dart';
 
 const FirebaseOptions sosAutoFirebaseOptions = FirebaseOptions(
   apiKey: 'AIzaSyBNWAWrTAtLjGyQWCXowi7hRGu1wc_IbyQ',
