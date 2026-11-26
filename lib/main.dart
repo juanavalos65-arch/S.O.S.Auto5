@@ -20,6 +20,8 @@ Future<void> main() async {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(options: sosAutoFirebaseOptions);
     }
+   await TheftAlertListener.iniciar();
+ 
     FirebaseFirestore.instance.settings = const Settings(
       persistenceEnabled: false,
     );
