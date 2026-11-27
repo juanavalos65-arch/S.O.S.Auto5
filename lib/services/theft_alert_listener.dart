@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'emergency_alert_service.dart';
+import 'firestore_rest_service.dart';
+
 
 /// Manejador obligatorio para cuando la app está cerrada en segundo plano
 @pragma('vm:entry-point')
