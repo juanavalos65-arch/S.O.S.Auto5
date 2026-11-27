@@ -56,7 +56,7 @@ class FirestoreRestService {
     }
   }
 
-  static Future<List>> leerDocumentos({
+  static Future<List> leerDocumentos({
     required String coleccion,
     int limite = 25,
   }) async {
