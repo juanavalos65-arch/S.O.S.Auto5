@@ -1,1 +1,811 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../services/banner_feed_service.dart';
+import '../services/emergency_alert_store.dart';
+import '../services/emergency_sound_service.dart';
+import '../services/vehicle_session.dart';
 
+class StolenCarScreen extends StatefulWidget {
+  const StolenCarScreen({super.key});
+  @override
+  State<StolenCarScreen> createState() => _StolenCarScreenState();
+}
+
+class _StolenCarScreenState extends State<StolenCarScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final TextEditingController _detalleCtrl = TextEditingController();
+  final TextEditingController _ultimaUbicacionCtrl = TextEditingController();
+
+  bool _isCountingDown = false;
+  bool _alertSent = false;
+  int _secondsRemaining = 5;
+  Timer? _countdownTimer;
+
+  String _placaReal = 'SIN PLACA';
+  String _vehiculoReal = 'Vehículo S.O.S. Auto';
+  String _ciudadReal = 'Colombia';
+  String _marcaReal = '';
+  String _modeloReal = '';
+  String _colorReal = '';
+  String _tipoReal = 'Vehículo';
+  List _contactosEmergencia = [];
+  double? _lat;
+  double? _lng;
+  String? _docId;
+  String? _bannerId;
+  String _estadoNube = 'Listo para reportar robo en el banner';
+
+  String get _mapsUrl => (_lat != null && _lng != null)
+      ? 'https://maps.google.com/?q=$_lat,$_lng'
+      : 'Ubicación GPS actual ($_ciudadReal)';
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _cargarVehiculoYGps();
+  }
+
+  Future<void> _cargarVehiculoYGps() async {
+    try {
+      Map? data;
+
+      final reg = await EmergencyAlertStore.getRegisteredVehicle();
+      if (reg != null) {
+        data = Map.from(reg);
+      } else {
+        final rawSec = await _storage.read(key: 'sos_auto_registered_vehicle');
+        if (rawSec != null && rawSec.isNotEmpty) {
+          final decoded = jsonDecode(rawSec);
+          if (decoded is Map) data = decoded;
+        }
+      }
+
+      if (data == null) {
+        final prefs = await SharedPreferences.getInstance();
+        final rawVehiculo = prefs.getString('sos_auto_registered_vehicle') ??
+            prefs.getString('sos_auto_vehicle_session') ??
+            prefs.getString('vehiculo_registrado');
+        if (rawVehiculo != null && rawVehiculo.isNotEmpty) {
+          final decoded = jsonDecode(rawVehiculo);
+          if (decoded is Map) data = decoded;
+        }
+      }
+
+      if (data != null) {
+        final placa =
+            (data['plate'] ?? data['placa'] ?? '').toString().toUpperCase();
+        final tipo = (data['vehicleType'] ??
+                data['tipoVehiculo'] ??
+                data['tipo'] ??
+                'Vehículo')
+            .toString();
+        final marca = (data['brand'] ?? data['marca'] ?? '').toString();
+        final modelo = (data['model'] ?? data['modelo'] ?? '').toString();
+        final color = (data['color'] ?? '').toString();
+        final ciudad = (data['city'] ?? data['ciudad'] ?? '').toString();
+        final contactos =
+            (data['emergencyContacts'] ?? data['contactos']) as List? ?? [];
+
+        if (mounted) {
+          setState(() {
+            _placaReal = placa.isNotEmpty ? placa : 'SIN PLACA';
+            _tipoReal = tipo;
+            _marcaReal = marca;
+            _modeloReal = modelo;
+            _colorReal = color;
+            final armado = '$tipo $marca $modelo $color'
+                .replaceAll(RegExp(r'\s+'), ' ')
+                .trim();
+            _vehiculoReal = armado.isNotEmpty ? armado : 'Vehículo S.O.S. Auto';
+            _ciudadReal = ciudad.isNotEmpty ? ciudad : 'Colombia';
+            _contactosEmergencia = contactos;
+          });
+        }
+      } else if (VehicleSession.hasVehicle && mounted) {
+        setState(() {
+          _placaReal = VehicleSession.plate.toUpperCase();
+          _tipoReal = VehicleSession.vehicleType;
+          _marcaReal = VehicleSession.brand;
+          _modeloReal = VehicleSession.model;
+          _colorReal = VehicleSession.color;
+          final armado =
+              '${VehicleSession.vehicleType} ${VehicleSession.brand} ${VehicleSession.model} ${VehicleSession.color}'
+                  .replaceAll(RegExp(r'\s+'), ' ')
+                  .trim();
+          _vehiculoReal = armado.isNotEmpty ? armado : 'Vehículo S.O.S. Auto';
+          _ciudadReal =
+              VehicleSession.city.isNotEmpty ? VehicleSession.city : 'Colombia';
+          if (VehicleSession.emergencyContactPhone.isNotEmpty) {
+            _contactosEmergencia = [
+              {
+                'name': VehicleSession.emergencyContactName.isNotEmpty
+                    ? VehicleSession.emergencyContactName
+                    : 'Contacto de Emergencia',
+                'fullPhone': VehicleSession.emergencyContactPhone,
+              }
+            ];
+          }
+        });
+      }
+    } catch (_) {}
+
+    try {
+      LocationPermission p = await Geolocator.checkPermission();
+      if (p == LocationPermission.denied) {
+        p = await Geolocator.requestPermission();
+      }
+      if (p == LocationPermission.always ||
+          p == LocationPermission.whileInUse) {
+        final pos = await Geolocator.getLastKnownPosition() ??
+            await Geolocator.getCurrentPosition(
+                    desiredAccuracy: LocationAccuracy.medium)
+                .timeout(const Duration(seconds: 4));
+        if (mounted) {
+          setState(() {
+            _lat = pos.latitude;
+            _lng = pos.longitude;
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _countdownTimer?.cancel();
+    _detalleCtrl.dispose();
+    _ultimaUbicacionCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _enviarWhatsAppRobo({String? telefonoDirecto}) async {
+    final detalle = _detalleCtrl.text.trim();
+    final ultimaUbicacion = _ultimaUbicacionCtrl.text.trim();
+
+    // Mensaje público seguro: NO incluye teléfono del afectado
+    final msg = Uri.encodeComponent(
+      '🚨 *ALERTA DE ROBO DE VEHÍCULO — S.O.S. AUTO*\n'
+      'Por favor difundir y avisar a la Policía (123) si lo ven:\n'
+      '• *Vehículo:* $_vehiculoReal\n'
+      '• *Placa:* *$_placaReal*\n'
+      '• *Ciudad:* $_ciudadReal\n'
+      '${ultimaUbicacion.isNotEmpty ? '• *Última ubicación vista:* $ultimaUbicacion\n' : ''}'
+      '${detalle.isNotEmpty ? '• *Detalle:* $detalle\n' : ''}'
+      '• *Punto GPS del reporte:* $_mapsUrl',
+    );
+
+    String digits = (telefonoDirecto ?? '').replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty && _contactosEmergencia.isNotEmpty) {
+      final first = _contactosEmergencia.first as Map;
+      digits = (first['fullPhone'] ?? first['phone'] ?? first['telefono'] ?? '')
+          .toString()
+          .replaceAll(RegExp(r'[^0-9]'), '');
+    } else if (digits.isEmpty &&
+        VehicleSession.emergencyContactPhone.isNotEmpty) {
+      digits = VehicleSession.emergencyContactPhone
+          .replaceAll(RegExp(r'[^0-9]'), '');
+    }
+
+    if (digits.length == 10 && digits.startsWith('3')) {
+      digits = '57$digits';
+    }
+
+    final Uri uri = digits.isNotEmpty
+        ? Uri.parse('https://wa.me/$digits?text=$msg')
+        : Uri.parse('https://wa.me/?text=$msg');
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('No se pudo abrir WhatsApp en este dispositivo.'),
+        ),
+      );
+    }
+  }
+
+  void _startCountdown() {
+    if (_isCountingDown || _alertSent) return;
+    setState(() {
+      _isCountingDown = true;
+      _secondsRemaining = 5;
+    });
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_secondsRemaining > 1) {
+        setState(() => _secondsRemaining--);
+      } else {
+        timer.cancel();
+        _publicarRoboEnBanner();
+      }
+    });
+  }
+
+  void _publicarRoboEnBanner() {
+    final detalle = _detalleCtrl.text.trim();
+    final ultimaUbicacion = _ultimaUbicacionCtrl.text.trim();
+    final docId = _placaReal != 'SIN PLACA'
+        ? 'stolen_$_placaReal'
+        : 'stolen_${DateTime.now().millisecondsSinceEpoch}';
+    _docId = docId;
+    _bannerId = docId;
+
+    final String propietarioUid =
+        FirebaseAuth.instance.currentUser?.uid ?? '';
+
+    final extra = [
+      if (detalle.isNotEmpty) detalle,
+      if (ultimaUbicacion.isNotEmpty) 'Última ubicación: $ultimaUbicacion',
+    ].join(' • ');
+
+    final tituloBanner =
+        '$_vehiculoReal • Placa $_placaReal ($_ciudadReal)${extra.isNotEmpty ? " • $extra" : ""}';
+
+    unawaited(
+      BannerFeedService.publishAlert(
+        id: docId,
+        category: 'stolen',
+        tag: '🚨 VEHÍCULO ROBADO — $_ciudadReal',
+        title: tituloBanner,
+        city: _ciudadReal,
+        plate: _placaReal,
+        lat: _lat,
+        lng: _lng,
+        gravedad: 'critica',
+      ),
+    );
+
+    final mensajeVoz =
+        'Alerta de robo de auto. Vehículo $_vehiculoReal, placa $_placaReal.';
+    unawaited(
+      EmergencySoundService.startSiren(
+        mensaje: mensajeVoz,
+      ),
+    );
+
+    unawaited(
+      FirebaseFirestore.instance.collection('vehiculos_robados').doc(docId).set(
+        {
+          'id': docId,
+          'propietarioUid': propietarioUid,
+          'placa': _placaReal,
+          'plate': _placaReal,
+          'detalleVehiculo': _vehiculoReal,
+          'vehiculo': _vehiculoReal,
+          'tipoVehiculo': _tipoReal,
+          'marca': _marcaReal,
+          'modelo': _modeloReal,
+          'color': _colorReal,
+          'ciudad': _ciudadReal,
+          'detalle': detalle,
+          'ultimaUbicacion': ultimaUbicacion,
+          'lat': _lat,
+          'lng': _lng,
+          'activa': true,
+          'fechaReporte': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      ).catchError((_) {}),
+    );
+
+    if (mounted) {
+      setState(() {
+        _isCountingDown = false;
+        _alertSent = true;
+        _estadoNube = '✅ Robo publicado en el Banner y alerta activada';
+      });
+    }
+  }
+
+  void _cancelOrDeactivate() {
+    _countdownTimer?.cancel();
+    unawaited(EmergencySoundService.stopSiren());
+    if (_bannerId != null) {
+      unawaited(BannerFeedService.deactivateAlert(_bannerId!));
+      unawaited(EmergencyAlertStore.dismissAlert(_bannerId!));
+    }
+    if (_docId != null) {
+      unawaited(
+        FirebaseFirestore.instance
+            .collection('vehiculos_robados')
+            .doc(_docId)
+            .update({
+          'activa': false,
+          'cerradaEn': FieldValue.serverTimestamp(),
+        }).catchError((_) {}),
+      );
+    }
+    setState(() {
+      _isCountingDown = false;
+      _alertSent = false;
+      _secondsRemaining = 5;
+      _estadoNube = 'Alerta desactivada y retirada del banner';
+    });
+  }
+
+  Future<void> _llamar123() async {
+    final uri = Uri.parse('tel:123');
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Robo de Auto',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(0xFFB71C1C),
+        foregroundColor: Colors.white,
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          indicatorWeight: 3,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          tabs: const [
+            Tab(icon: Icon(Icons.campaign), text: 'Reportar robo'),
+            Tab(icon: Icon(Icons.directions_car), text: 'Vehículos robados'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: _alertSent
+                        ? const Color(0xFFB71C1C)
+                        : Colors.red.shade700,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.white,
+                        size: 46,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _isCountingDown
+                            ? 'PUBLICANDO EN BANNER EN $_secondsRemaining s...'
+                            : (_alertSent
+                                ? '¡ROBO PUBLICADO EN BANNER!'
+                                : 'REPORTAR VEHÍCULO ROBADO'),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$_vehiculoReal • Placa: $_placaReal\n$_estadoNube',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.amberAccent,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      if (!_isCountingDown && !_alertSent)
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.red.shade900,
+                            ),
+                            onPressed: _startCountdown,
+                            icon: const Icon(Icons.sos),
+                            label: const Text(
+                              'REPORTAR ROBO AHORA',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        )
+                      else
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black87,
+                            ),
+                            onPressed: _cancelOrDeactivate,
+                            icon: const Icon(Icons.cancel_outlined),
+                            label: Text(
+                              _isCountingDown
+                                  ? 'CANCELAR CUENTA REGRESIVA'
+                                  : 'DESACTIVAR ALERTA',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF25D366),
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: () => _enviarWhatsAppRobo(),
+                          icon: const Icon(Icons.chat),
+                          label: const Text(
+                            'ENVIAR ALERTA A CONTACTOS (WHATSAPP)',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 12.5),
+                          ),
+                        ),
+                      ),
+                      if (_contactosEmergencia.length > 1) ...[
+                        const SizedBox(height: 8),
+                        ..._contactosEmergencia.skip(1).map((c) {
+                          final map = c as Map;
+                          final nombre =
+                              (map['name'] ?? map['nombre'] ?? 'Contacto 2')
+                                  .toString();
+                          final tel = (map['fullPhone'] ??
+                                  map['phone'] ??
+                                  map['telefono'] ??
+                                  '')
+                              .toString();
+                          if (tel.isEmpty) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 42,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF128C7E),
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () =>
+                                    _enviarWhatsAppRobo(telefonoDirecto: tel),
+                                icon: const Icon(Icons.chat, size: 18),
+                                label: Text(
+                                  'ENVIAR TAMBIÉN A ${nombre.toUpperCase()}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                      if (_alertSent) ...[
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 44,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0D47A1),
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: _llamar123,
+                            icon: const Icon(Icons.call),
+                            label: const Text(
+                              'LLAMAR AL 123',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _ultimaUbicacionCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Última ubicación vista (opcional)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _detalleCtrl,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Detalle del robo (opcional)',
+                    hintText: 'Ej: Dos hombres en moto, sentido norte...',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _ListaVehiculosRobados(placaPropia: _placaReal),
+        ],
+      ),
+    );
+  }
+}
+
+class _ListaVehiculosRobados extends StatelessWidget {
+  final String placaPropia;
+
+  const _ListaVehiculosRobados({required this.placaPropia});
+
+  Future<void> _avisarAvistamiento(
+      String placa, String vehiculo, String ciudad) async {
+    final msg = Uri.encodeComponent(
+      '🚨 *AVISTAMIENTO VEHÍCULO ROBADO — S.O.S. AUTO*\n'
+      'Acabo de ver el vehículo reportado como robado:\n'
+      '• *Vehículo:* $vehiculo\n'
+      '• *Placa:* $placa\n'
+      '• *Ciudad:* $ciudad',
+    );
+    final uri = Uri.parse('https://wa.me/?text=$msg');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Future<void> _llamar123() async {
+    final uri = Uri.parse('tel:123');
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {}
+  }
+
+  bool _esPropietarioDelReporte(Map data, String placaReporte) {
+    final String uidActual = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final String propietarioUid = (data['propietarioUid'] ?? '').toString();
+    if (uidActual.isNotEmpty &&
+        propietarioUid.isNotEmpty &&
+        uidActual == propietarioUid) {
+      return true;
+    }
+
+    final String placaLocal =
+        (placaPropia.isNotEmpty ? placaPropia : VehicleSession.plate)
+            .trim()
+            .toUpperCase();
+    final String placaDoc = placaReporte.trim().toUpperCase();
+    if (placaLocal.isNotEmpty &&
+        placaLocal != 'SIN PLACA' &&
+        placaLocal == placaDoc) {
+      return true;
+    }
+
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.amber.shade50,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.amber.shade700, width: 1.2),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.info_outline, color: Colors.amber.shade900, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Aviso: S.O.S. Auto confía en la buena fe del usuario que reporta el vehículo robado y no se hace responsable por la veracidad de los reportes que hacen los usuarios.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.amber.shade900,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('vehiculos_robados')
+                .where('activa', isEqualTo: true)
+                .limit(30)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final docs = snapshot.data?.docs ?? [];
+
+              if (docs.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      'No hay vehículos reportados como robados en este momento.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 15, color: Colors.black54),
+                    ),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(12),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  final doc = docs[index];
+                  final data = doc.data() as Map;
+                  final String placa =
+                      (data['placa'] ?? data['plate'] ?? 'SIN PLACA')
+                          .toString();
+                  final String vehiculo = (data['detalleVehiculo'] ??
+                          data['vehiculo'] ??
+                          'Vehículo')
+                      .toString();
+                  final String ciudad =
+                      (data['ciudad'] ?? 'Colombia').toString();
+                  final String ultimaUbicacion =
+                      (data['ultimaUbicacion'] ?? '').toString();
+                  final String detalle = (data['detalle'] ?? '').toString();
+                  final bool puedeMarcarRecuperado =
+                      _esPropietarioDelReporte(data, placa);
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: Colors.red.shade300, width: 1.5),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.warning_amber_rounded,
+                                  color: Color(0xFFB71C1C), size: 26),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '$vehiculo • Placa $placa',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Color(0xFFB71C1C),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  ciudad,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red.shade900,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (ultimaUbicacion.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              'Última ubicación: $ultimaUbicacion',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                          if (detalle.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(detalle,
+                                style: const TextStyle(color: Colors.black87)),
+                          ],
+                          const Divider(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton.icon(
+                                onPressed: _llamar123,
+                                icon: const Icon(Icons.call,
+                                    size: 17, color: Color(0xFF0D47A1)),
+                                label: const Text(
+                                  '123',
+                                  style: TextStyle(
+                                      color: Color(0xFF0D47A1),
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              TextButton.icon(
+                                onPressed: () => _avisarAvistamiento(
+                                    placa, vehiculo, ciudad),
+                                icon: const Icon(Icons.share,
+                                    size: 17, color: Color(0xFFEF6C00)),
+                                label: const Text(
+                                  'Lo vi',
+                                  style: TextStyle(
+                                      color: Color(0xFFEF6C00),
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              if (puedeMarcarRecuperado)
+                                TextButton.icon(
+                                  onPressed: () async {
+                                    await doc.reference.update({
+                                      'activa': false,
+                                      'cerradaEn': FieldValue.serverTimestamp(),
+                                    });
+                                    await BannerFeedService.deactivateAlert(
+                                        doc.id);
+                                    await BannerFeedService.deactivateAlert(
+                                        'stolen_$placa');
+                                  },
+                                  icon: const Icon(Icons.check_circle_outline,
+                                      size: 17, color: Colors.green),
+                                  label: const Text(
+                                    'Recuperado',
+                                    style: TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
